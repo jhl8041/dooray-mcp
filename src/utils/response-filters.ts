@@ -41,20 +41,6 @@ export function filterMilestoneForList(milestone: Milestone) {
     id: milestone.id,
     name: milestone.name,
     status: milestone.status,
-    startedAt: milestone.startedAt,
-    endedAt: milestone.endedAt,
-    createdAt: milestone.createdAt,
-  };
-}
-
-/**
- * Filter Tag object to return only essential fields for list display
- */
-export function filterTagForList(tag: Tag) {
-  return {
-    id: tag.id,
-    name: tag.name,
-    tagGroup: tag.tagGroup,
   };
 }
 

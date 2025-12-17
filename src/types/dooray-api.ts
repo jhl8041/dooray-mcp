@@ -183,6 +183,20 @@ export interface CreateTaskParams {
   priority?: 'highest' | 'high' | 'normal' | 'low' | 'lowest' | 'none';
 }
 
+/**
+ * Draft task creation parameters
+ * Same structure as CreateTaskParams - draft tasks accept the same fields
+ */
+export type CreateDraftTaskParams = CreateTaskParams;
+
+/**
+ * Draft task creation response
+ */
+export interface DraftTaskResponse {
+  id: string;
+  url: string;
+}
+
 export interface UpdateTaskParams {
   subject?: string;
   body?: {

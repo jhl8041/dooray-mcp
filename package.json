@@ -1,6 +1,6 @@
 {
   "name": "@jhl8041/dooray-mcp",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "MCP server for Dooray",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

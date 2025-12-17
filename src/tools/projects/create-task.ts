@@ -21,6 +21,7 @@ const bodySchema = z.object({
 export const createTaskSchema = z.object({
   projectId: z.string().describe('Project ID where the task will be created'),
   parentPostId: z.string().optional().describe('Parent task ID to create this as a subtask'),
+  isDraft: z.boolean().optional().describe('Set to true to create a draft task (임시 업무) that can be continued in the browser. Default: false'),
   subject: z.string().describe('Task subject/title'),
   body: bodySchema.optional().describe('Task body content'),
   assignees: z.array(memberSchema).optional().describe('List of assignees'),
@@ -35,7 +36,9 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
 export async function createTaskHandler(args: CreateTaskInput) {
   try {
-    const result = await projectsApi.createTask({
+    const isDraft = args.isDraft || false;
+    
+    const apiParams = {
       projectId: args.projectId,
       parentPostId: args.parentPostId,
       subject: args.subject,
@@ -48,16 +51,37 @@ export async function createTaskHandler(args: CreateTaskInput) {
       milestoneId: args.milestoneId,
       tagIds: args.tagIds,
       priority: args.priority,
-    });
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
     };
+
+    if (isDraft) {
+      // Create draft task
+      const result = await projectsApi.createDraftTask(apiParams);
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              id: result.id,
+              url: result.url,
+              message: 'Draft task created successfully. Open the URL in your browser to continue editing.',
+            }, null, 2),
+          },
+        ],
+      };
+    } else {
+      // Create regular task
+      const result = await projectsApi.createTask(apiParams);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    }
   } catch (error) {
     return {
       content: [
@@ -73,41 +97,28 @@ export async function createTaskHandler(args: CreateTaskInput) {
 
 export const createTaskTool = {
   name: 'create-task',
-  description: `Create a new task (업무) in a Dooray project. Required fields: projectId and subject.
+  description: `Create a new task (업무) in a Dooray project. Required: projectId, subject.
 
-**RECOMMENDED INTERACTIVE WORKFLOW** (ask user questions step by step):
+**DRAFT vs REGULAR**: ASK USER which type to create:
+- **Draft (isDraft: true)**: Returns URL to continue editing in browser. Use for complex tasks or when user wants to review.
+- **Regular (isDraft: false, default)**: Saves immediately. Use when all info is available.
 
-1. **Templates**: Call get-project-template-list, ask user if they want to use a template
-   - If yes: Call get-project-template to get full details, use as defaults for subject/body/tags/assignees/cc/priority
-   - Extract tag IDs: template.tags.map(t => t.id)
-   - Transform members: template.users.to/cc to {id, type} format
+**INTERACTIVE WORKFLOW**:
+1. **Templates**: Ask about get-project-template-list. If yes, use get-project-template for defaults.
+2. **Content**: Get subject and body. If no template and no body, ask user for details.
+3. **Assignees/CC**: Use get-my-member-info, get-project-member-list, or get-project-member-group-list. Format: {id, type: "member|group|email"}
+4. **Tags**: Call get-tag-list. **CRITICAL**: Check mandatory tag groups - must select or creation fails (500 error). selectOne=true requires exactly ONE tag from group.
 
-2. **Title & Body**: Ask for task title (subject) and content (body)
-   - If template selected: Elaborate user's content to fit template structure
-   - If no template and no body provided: Ask user for body content before creating task
-   - Body format: {"mimeType": "text/x-markdown", "content": "..."}
-
-3. **Assignees & CC**: Ask for "to" (담당자) and "cc" (참조)
-   - Get options: get-my-member-info (current user), get-project-member-list (members), get-project-member-group-list (groups)
-   - Member types: {"id": "...", "type": "member|group|email"}
-   - "member": organizationMemberId, "group": group id, "email": email address
-
-4. **Tags**: Call get-tag-list, ask which tags to register
-   - **CRITICAL**: Check tagGroup.mandatory=true - MUST select from these groups or task creation fails (500 error)
-   - tagGroup.selectOne=true: Select exactly ONE tag from group
-   - tagGroup.selectOne=false: Select one or MORE tags from group
-
-**Key Settings**:
-- Priority: Default "none" if not specified
-- Subtasks: Set parentPostId to create 하위업무
-- URL extraction: "https://nhnent.dooray.com/task/PROJECT_ID" → extract PROJECT_ID
+**Key Points**:
+- Priority defaults to "none"
+- Set parentPostId for subtasks (하위업무)
+- Extract PROJECT_ID from URLs like "https://nhnent.dooray.com/task/PROJECT_ID"
 
 **Examples**:
-- Simple: {"projectId": "123", "subject": "Fix bug", "tagIds": ["tag1"]}
-- With template: {"projectId": "123", "subject": "[SMS] Issue", "body": {...}, "assignees": [{...}], "tagIds": ["tag1", "tag2"]}
-- Full: {"projectId": "123", "subject": "Deploy", "assignees": [{"id": "user1", "type": "member"}], "cc": [{"id": "user2", "type": "member"}], "priority": "high", "tagIds": ["tag1"]}
+- Draft: {"projectId": "123", "subject": "Bug fix", "isDraft": true}
+- Regular: {"projectId": "123", "subject": "Deploy", "assignees": [{"id": "user1", "type": "member"}], "tagIds": ["tag1"], "priority": "high"}
 
-Returns: Created task with ID and number.`,
+Returns: Task object (regular) or {id, url, message} (draft).`,
   inputSchema: {
     type: 'object',
     properties: {
@@ -118,6 +129,10 @@ Returns: Created task with ID and number.`,
       parentPostId: {
         type: 'string',
         description: 'Parent task ID to create this as a subtask (하위업무). Omit to create a regular task.',
+      },
+      isDraft: {
+        type: 'boolean',
+        description: 'Set to true to create a draft task (임시 업무) that can be continued in the browser. Returns a URL for further editing. Default: false (creates regular task).',
       },
       subject: {
         type: 'string',

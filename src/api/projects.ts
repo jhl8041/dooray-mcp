@@ -10,6 +10,7 @@ import {
   Task,
   TaskListParams,
   CreateTaskParams,
+  DraftTaskResponse,
   UpdateTaskParams,
   CreateTaskCommentParams,
   CreateTaskCommentResponse,
@@ -126,6 +127,32 @@ export async function createTask(params: CreateTaskParams): Promise<Task> {
   if (params.priority) requestBody.priority = params.priority;
 
   return client.post(`${PROJECTS_BASE}/projects/${params.projectId}/posts`, requestBody);
+}
+
+/**
+ * Create a draft task (임시 업무)
+ * Returns draft task ID and URL for continued editing in browser
+ */
+export async function createDraftTask(params: CreateTaskParams): Promise<DraftTaskResponse> {
+  const client = getClient();
+
+  const requestBody: Record<string, unknown> = {
+    projectId: params.projectId,
+    subject: params.subject,
+  };
+
+  if (params.parentPostId) requestBody.parentPostId = params.parentPostId;
+  if (params.body) requestBody.body = params.body;
+  if (params.users) requestBody.users = params.users;
+  if (params.dueDate) {
+    requestBody.dueDate = params.dueDate;
+    requestBody.dueDateFlag = params.dueDateFlag !== undefined ? params.dueDateFlag : true;
+  }
+  if (params.milestoneId) requestBody.milestoneId = params.milestoneId;
+  if (params.tagIds) requestBody.tagIds = params.tagIds;
+  if (params.priority) requestBody.priority = params.priority;
+
+  return client.post(`${PROJECTS_BASE}/post-drafts`, requestBody);
 }
 
 /**

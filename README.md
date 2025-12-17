@@ -20,7 +20,7 @@ export DOORAY_API_TOKEN=<발급 받은 API 토큰>
 
 ### 1. Claude Code 등록
 ```bash
-claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp
+claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 ```
 
 ### 2. Claude Desktop 설정
@@ -31,7 +31,7 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp
 {
   "mcpServers": {
     "dooray": {
-      "command": "npx @jhl8041/dooray-mcp",
+      "command": "npx @jhl8041/dooray-mcp@latest",
       "env": { "DOORAY_API_TOKEN": "발급받은_토큰" }
     }
   }
