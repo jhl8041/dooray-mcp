@@ -177,9 +177,25 @@ export async function updateTask(
   if (params.milestoneId !== undefined) requestBody.milestoneId = params.milestoneId;
   if (params.tagIds !== undefined) requestBody.tagIds = params.tagIds;
   if (params.priority !== undefined) requestBody.priority = params.priority;
-  if (params.workflowId !== undefined) requestBody.workflowId = params.workflowId;
+  // workflowId는 별도 API (setTaskWorkflow)를 통해 처리
 
   return client.put(`${PROJECTS_BASE}/projects/${projectId}/posts/${taskId}`, requestBody);
+}
+
+/**
+ * Set task workflow (업무 상태 변경)
+ * POST /project/v1/projects/{project-id}/posts/{post-id}/set-workflow
+ */
+export async function setTaskWorkflow(
+  projectId: string,
+  taskId: string,
+  workflowId: string
+): Promise<void> {
+  const client = getClient();
+  await client.post(
+    `${PROJECTS_BASE}/projects/${projectId}/posts/${taskId}/set-workflow`,
+    { workflowId }
+  );
 }
 
 /**

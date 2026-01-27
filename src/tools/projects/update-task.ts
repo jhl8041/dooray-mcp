@@ -36,19 +36,39 @@ export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
 export async function updateTaskHandler(args: UpdateTaskInput) {
   try {
-    const result = await projectsApi.updateTask(args.projectId, args.taskId, {
-      subject: args.subject,
-      body: args.body,
-      users: {
+    // 1. 기본 필드 업데이트 파라미터 구성
+    const updateParams: Record<string, unknown> = {};
+
+    if (args.subject !== undefined) updateParams.subject = args.subject;
+    if (args.body !== undefined) updateParams.body = args.body;
+    if (args.dueDate !== undefined) updateParams.dueDate = args.dueDate;
+    if (args.milestoneId !== undefined) updateParams.milestoneId = args.milestoneId;
+    if (args.tagIds !== undefined) updateParams.tagIds = args.tagIds;
+    if (args.priority !== undefined) updateParams.priority = args.priority;
+
+    // users 필드: assignees 또는 cc가 제공된 경우에만 포함
+    if (args.assignees !== undefined || args.cc !== undefined) {
+      updateParams.users = {
         to: transformMembers(args.assignees),
         cc: transformMembers(args.cc),
-      },
-      dueDate: args.dueDate,
-      milestoneId: args.milestoneId,
-      tagIds: args.tagIds,
-      priority: args.priority,
-      workflowId: args.workflowId,
-    });
+      };
+    }
+
+    // 2. 기본 필드 업데이트 (변경사항이 있는 경우만)
+    let result = null;
+    if (Object.keys(updateParams).length > 0) {
+      result = await projectsApi.updateTask(args.projectId, args.taskId, updateParams);
+    }
+
+    // 3. workflow 변경 (별도 API 호출)
+    if (args.workflowId !== undefined) {
+      await projectsApi.setTaskWorkflow(args.projectId, args.taskId, args.workflowId);
+    }
+
+    // 4. 최종 task 상태 반환 (기본 업데이트 없이 workflow만 변경한 경우)
+    if (!result) {
+      result = await projectsApi.getTaskDetails(args.taskId, args.projectId);
+    }
 
     return {
       content: [
