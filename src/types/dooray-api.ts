@@ -456,3 +456,129 @@ export interface PaginatedResponse<T> {
   totalCount: number;
   data: T[];
 }
+
+// ============================================================================
+// Wiki API Types
+// ============================================================================
+
+export interface Wiki {
+  id: string;
+  project: { id: string };
+  name: string;
+  type: 'public' | 'private';
+  scope: 'public' | 'private';
+  home?: { pageId: string };
+}
+
+export interface WikiListParams {
+  page?: number;
+  size?: number;
+}
+
+export interface WikiPage {
+  id: string;
+  wikiId: string;
+  version: string;
+  parentPageId?: string;
+  subject: string;
+  body?: {
+    mimeType: 'text/x-markdown';
+    content: string;
+  };
+  root: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  creator?: {
+    type: 'member';
+    member: { organizationMemberId: string };
+  };
+  referrers?: Array<{
+    type: 'member';
+    member: { organizationMemberId: string };
+  }>;
+  files?: Array<{ id: string; name: string; size: number; attachFileId?: string }>;
+  images?: Array<{ id: string; name: string; size: number; attachFileId?: string }>;
+}
+
+export interface WikiPageListParams {
+  wikiId: string;
+  parentPageId?: string;
+}
+
+export interface WikiPageCreateParams {
+  wikiId: string;
+  parentPageId?: string;
+  subject: string;
+  body: {
+    mimeType: 'text/x-markdown';
+    content: string;
+  };
+  attachFileIds?: string[];
+  referrers?: Array<{
+    type: 'member';
+    member: { organizationMemberId: string };
+  }>;
+}
+
+export interface WikiPageCreateResponse {
+  id: string;
+  wikiId: string;
+  parentPageId?: string;
+  version: number;
+}
+
+export interface WikiPageUpdateParams {
+  wikiId: string;
+  pageId: string;
+  subject?: string;
+  body?: {
+    mimeType: 'text/x-markdown';
+    content: string;
+  };
+  referrers?: Array<{
+    type: 'member';
+    member: { organizationMemberId: string };
+  }> | null;
+}
+
+export interface WikiComment {
+  id: string;
+  page: { id: string };
+  createdAt: string;
+  modifiedAt: string;
+  creator: {
+    type: 'member';
+    member: {
+      organizationMemberId: string;
+      name?: string;
+    };
+  };
+  body: {
+    mimeType: 'text/x-markdown';
+    content: string;
+  };
+}
+
+export interface WikiCommentListParams {
+  wikiId: string;
+  pageId: string;
+  page?: number;
+  size?: number;
+}
+
+export interface WikiCommentCreateParams {
+  wikiId: string;
+  pageId: string;
+  content: string;
+}
+
+export interface WikiCommentCreateResponse {
+  id: string;
+}
+
+export interface WikiCommentUpdateParams {
+  wikiId: string;
+  pageId: string;
+  commentId: string;
+  content: string;
+}

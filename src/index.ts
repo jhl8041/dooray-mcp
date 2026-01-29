@@ -39,6 +39,18 @@ import { getAttachmentMetadataTool, getAttachmentMetadataHandler, getAttachmentM
 import { downloadAttachmentTool, downloadAttachmentHandler, downloadAttachmentSchema } from './tools/projects/download-attachment.js';
 import { deleteAttachmentTool, deleteAttachmentHandler, deleteAttachmentSchema } from './tools/projects/delete-attachment.js';
 
+// Wiki tools
+import { getWikiListTool, getWikiListHandler, getWikiListSchema } from './tools/wiki/get-wiki-list.js';
+import { getWikiPageListTool, getWikiPageListHandler, getWikiPageListSchema } from './tools/wiki/get-wiki-page-list.js';
+import { getWikiPageTool, getWikiPageHandler, getWikiPageSchema } from './tools/wiki/get-wiki-page.js';
+import { createWikiPageTool, createWikiPageHandler, createWikiPageSchema } from './tools/wiki/create-wiki-page.js';
+import { updateWikiPageTool, updateWikiPageHandler, updateWikiPageSchema } from './tools/wiki/update-wiki-page.js';
+import { getWikiCommentListTool, getWikiCommentListHandler, getWikiCommentListSchema } from './tools/wiki/get-wiki-comment-list.js';
+import { getWikiCommentTool, getWikiCommentHandler, getWikiCommentSchema } from './tools/wiki/get-wiki-comment.js';
+import { createWikiCommentTool, createWikiCommentHandler, createWikiCommentSchema } from './tools/wiki/create-wiki-comment.js';
+import { updateWikiCommentTool, updateWikiCommentHandler, updateWikiCommentSchema } from './tools/wiki/update-wiki-comment.js';
+import { deleteWikiCommentTool, deleteWikiCommentHandler, deleteWikiCommentSchema } from './tools/wiki/delete-wiki-comment.js';
+
 // Load environment variables
 dotenv.config();
 
@@ -71,6 +83,18 @@ const toolRegistry = {
   'get-attachment-metadata': { handler: getAttachmentMetadataHandler, schema: getAttachmentMetadataSchema },
   'download-attachment': { handler: downloadAttachmentHandler, schema: downloadAttachmentSchema },
   'delete-attachment': { handler: deleteAttachmentHandler, schema: deleteAttachmentSchema },
+
+  // Wiki tools
+  'get-wiki-list': { handler: getWikiListHandler, schema: getWikiListSchema },
+  'get-wiki-page-list': { handler: getWikiPageListHandler, schema: getWikiPageListSchema },
+  'get-wiki-page': { handler: getWikiPageHandler, schema: getWikiPageSchema },
+  'create-wiki-page': { handler: createWikiPageHandler, schema: createWikiPageSchema },
+  'update-wiki-page': { handler: updateWikiPageHandler, schema: updateWikiPageSchema },
+  'get-wiki-comment-list': { handler: getWikiCommentListHandler, schema: getWikiCommentListSchema },
+  'get-wiki-comment': { handler: getWikiCommentHandler, schema: getWikiCommentSchema },
+  'create-wiki-comment': { handler: createWikiCommentHandler, schema: createWikiCommentSchema },
+  'update-wiki-comment': { handler: updateWikiCommentHandler, schema: updateWikiCommentSchema },
+  'delete-wiki-comment': { handler: deleteWikiCommentHandler, schema: deleteWikiCommentSchema },
 };
 
 /**
@@ -99,6 +123,18 @@ const tools = [
   getAttachmentMetadataTool,
   downloadAttachmentTool,
   deleteAttachmentTool,
+
+  // Wiki tools
+  getWikiListTool,
+  getWikiPageListTool,
+  getWikiPageTool,
+  createWikiPageTool,
+  updateWikiPageTool,
+  getWikiCommentListTool,
+  getWikiCommentTool,
+  createWikiCommentTool,
+  updateWikiCommentTool,
+  deleteWikiCommentTool,
 ];
 
 /**
