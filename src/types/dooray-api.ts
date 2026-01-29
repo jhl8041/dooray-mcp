@@ -338,6 +338,34 @@ export interface TagListParams {
   size?: number;
 }
 
+/**
+ * Tag creation parameters
+ * - Individual tag: { name: "myTag", color: "ffffff" }
+ * - Group tag: { name: "groupName:tagName", color: "ffffff" }
+ */
+export interface CreateTagParams {
+  projectId: string;
+  name: string;
+  color?: string;
+}
+
+export interface CreateTagResponse {
+  id: string;
+}
+
+/**
+ * Tag group update parameters
+ * - mandatory: true - At least one tag from this group is required when creating tasks
+ * - selectOne: true - Exactly one tag must be selected from this group
+ * - selectOne: false - One or more tags can be selected from this group
+ */
+export interface UpdateTagGroupParams {
+  projectId: string;
+  tagGroupId: string;
+  mandatory?: boolean;
+  selectOne?: boolean;
+}
+
 export interface ProjectMember {
   organizationMemberId: string;
   role: 'admin' | 'member';

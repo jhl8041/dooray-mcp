@@ -28,6 +28,9 @@ import { getTaskCommentListTool, getTaskCommentListHandler, getTaskCommentListSc
 import { updateTaskCommentTool, updateTaskCommentHandler, updateTaskCommentSchema } from './tools/projects/update-task-comment.js';
 import { getMilestoneListTool, getMilestoneListHandler, getMilestoneListSchema } from './tools/projects/get-milestone-list.js';
 import { getTagListTool, getTagListHandler, getTagListSchema } from './tools/projects/get-tag-list.js';
+import { getTagTool, getTagHandler, getTagSchema } from './tools/projects/get-tag.js';
+import { createTagTool, createTagHandler, createTagSchema } from './tools/projects/create-tag.js';
+import { updateTagGroupTool, updateTagGroupHandler, updateTagGroupSchema } from './tools/projects/update-tag-group.js';
 import { getProjectTemplateListTool, getProjectTemplateListHandler, getProjectTemplateListSchema } from './tools/projects/get-project-template-list.js';
 import { getProjectTemplateTool, getProjectTemplateHandler, getProjectTemplateSchema } from './tools/projects/get-project-template.js';
 import { getProjectMemberListTool, getProjectMemberListHandler, getProjectMemberListSchema } from './tools/projects/get-project-member-list.js';
@@ -73,6 +76,9 @@ const toolRegistry = {
   'update-task-comment': { handler: updateTaskCommentHandler, schema: updateTaskCommentSchema },
   'get-milestone-list': { handler: getMilestoneListHandler, schema: getMilestoneListSchema },
   'get-tag-list': { handler: getTagListHandler, schema: getTagListSchema },
+  'get-tag': { handler: getTagHandler, schema: getTagSchema },
+  'create-tag': { handler: createTagHandler, schema: createTagSchema },
+  'update-tag-group': { handler: updateTagGroupHandler, schema: updateTagGroupSchema },
   'get-project-template-list': { handler: getProjectTemplateListHandler, schema: getProjectTemplateListSchema },
   'get-project-template': { handler: getProjectTemplateHandler, schema: getProjectTemplateSchema },
   'get-project-member-list': { handler: getProjectMemberListHandler, schema: getProjectMemberListSchema },
@@ -113,6 +119,9 @@ const tools = [
   updateTaskCommentTool,
   getMilestoneListTool,
   getTagListTool,
+  getTagTool,
+  createTagTool,
+  updateTagGroupTool,
   getProjectTemplateListTool,
   getProjectTemplateTool,
   getProjectMemberListTool,

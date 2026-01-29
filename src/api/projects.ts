@@ -21,6 +21,9 @@ import {
   MilestoneListParams,
   Tag,
   TagListParams,
+  CreateTagParams,
+  CreateTagResponse,
+  UpdateTagGroupParams,
   Workflow,
   WorkflowListParams,
   ProjectTemplate,
@@ -305,6 +308,52 @@ export async function getTags(params: TagListParams): Promise<PaginatedResponse<
 export async function getTagDetails(projectId: string, tagId: string): Promise<Tag> {
   const client = getClient();
   return client.get(`${PROJECTS_BASE}/projects/${projectId}/tags/${tagId}`);
+}
+
+/**
+ * Create a new tag in a project
+ * - Individual tag: { name: "myTag", color: "ffffff" }
+ * - Group tag: { name: "groupName:tagName", color: "ffffff" }
+ */
+export async function createTag(params: CreateTagParams): Promise<CreateTagResponse> {
+  const client = getClient();
+
+  const requestBody: Record<string, unknown> = {
+    name: params.name,
+  };
+
+  if (params.color) {
+    requestBody.color = params.color;
+  }
+
+  return client.post<CreateTagResponse>(
+    `${PROJECTS_BASE}/projects/${params.projectId}/tags`,
+    requestBody
+  );
+}
+
+/**
+ * Update tag group settings
+ * - mandatory: true - At least one tag from this group is required when creating tasks
+ * - selectOne: true - Exactly one tag must be selected from this group
+ * - selectOne: false - One or more tags can be selected from this group
+ */
+export async function updateTagGroup(params: UpdateTagGroupParams): Promise<void> {
+  const client = getClient();
+
+  const requestBody: Record<string, unknown> = {};
+
+  if (params.mandatory !== undefined) {
+    requestBody.mandatory = params.mandatory;
+  }
+  if (params.selectOne !== undefined) {
+    requestBody.selectOne = params.selectOne;
+  }
+
+  await client.put(
+    `${PROJECTS_BASE}/projects/${params.projectId}/tag-groups/${params.tagGroupId}`,
+    requestBody
+  );
 }
 
 /**

@@ -56,6 +56,9 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `update-task-comment` - 댓글 수정 (이메일 댓글 수정 불가)
 - `get-milestone-list` - 마일스톤 목록
 - `get-tag-list` - 태그 목록
+- `get-tag` - 태그 상세정보
+- `create-tag` - 태그 생성 (개별/그룹 태그)
+- `update-tag-group` - 태그 그룹 설정 수정
 - `get-project-template-list` - 템플릿 목록
 - `get-project-template` - 템플릿 상세정보
 - `get-project-member-list` - 프로젝트 멤버 목록
