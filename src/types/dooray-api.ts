@@ -453,6 +453,79 @@ export interface GetProjectTemplateParams {
 }
 
 /**
+ * Template user assignment structure (used in create/update)
+ */
+export interface TemplateUserAssignment {
+  type: 'member' | 'emailUser';
+  member?: {
+    organizationMemberId: string;
+  };
+  emailUser?: {
+    emailAddress: string;
+    name: string;
+  };
+}
+
+/**
+ * Template creation parameters
+ */
+export interface CreateTemplateParams {
+  projectId: string;
+  templateName: string;
+  users?: {
+    to?: TemplateUserAssignment[];
+    cc?: TemplateUserAssignment[];
+  };
+  body?: {
+    mimeType: 'text/x-markdown' | 'text/html';
+    content: string;
+  };
+  guide?: {
+    mimeType: 'text/x-markdown' | 'text/html';
+    content: string;
+  };
+  subject?: string;
+  dueDate?: string;
+  dueDateFlag?: boolean;
+  milestoneId?: string;
+  tagIds?: string[];
+  priority?: 'highest' | 'high' | 'normal' | 'low' | 'lowest' | 'none';
+  isDefault?: boolean;
+}
+
+export interface CreateTemplateResponse {
+  id: string;
+}
+
+/**
+ * Template update parameters
+ */
+export interface UpdateTemplateParams {
+  projectId: string;
+  templateId: string;
+  templateName: string;
+  users?: {
+    to?: TemplateUserAssignment[];
+    cc?: TemplateUserAssignment[];
+  };
+  body?: {
+    mimeType: 'text/x-markdown' | 'text/html';
+    content: string;
+  };
+  guide?: {
+    mimeType: 'text/x-markdown' | 'text/html';
+    content: string;
+  };
+  subject?: string;
+  dueDate?: string;
+  dueDateFlag?: boolean;
+  milestoneId?: string;
+  tagIds?: string[];
+  priority?: 'highest' | 'high' | 'normal' | 'low' | 'lowest' | 'none';
+  isDefault?: boolean;
+}
+
+/**
  * Task Attachment (첨부파일) - returned from file list API
  */
 export interface TaskAttachment {

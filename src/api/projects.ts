@@ -29,6 +29,9 @@ import {
   ProjectTemplate,
   GetProjectTemplateListParams,
   GetProjectTemplateParams,
+  CreateTemplateParams,
+  CreateTemplateResponse,
+  UpdateTemplateParams,
   ProjectMember,
   GetProjectMemberListParams,
   ProjectMemberGroup,
@@ -398,6 +401,78 @@ export async function getProjectTemplate(
   // No query params needed - interpolation defaults to false
   return client.get(
     `${PROJECTS_BASE}/projects/${params.projectId}/templates/${params.templateId}`
+  );
+}
+
+/**
+ * Create a new project template
+ */
+export async function createProjectTemplate(
+  params: CreateTemplateParams
+): Promise<CreateTemplateResponse> {
+  const client = getClient();
+
+  const requestBody: Record<string, unknown> = {
+    templateName: params.templateName,
+  };
+
+  if (params.users) requestBody.users = params.users;
+  if (params.body) requestBody.body = params.body;
+  if (params.guide) requestBody.guide = params.guide;
+  if (params.subject) requestBody.subject = params.subject;
+  if (params.dueDate) requestBody.dueDate = params.dueDate;
+  if (params.dueDateFlag !== undefined) requestBody.dueDateFlag = params.dueDateFlag;
+  if (params.milestoneId) requestBody.milestoneId = params.milestoneId;
+  if (params.tagIds) requestBody.tagIds = params.tagIds;
+  if (params.priority) requestBody.priority = params.priority;
+  if (params.isDefault !== undefined) requestBody.isDefault = params.isDefault;
+
+  return client.post<CreateTemplateResponse>(
+    `${PROJECTS_BASE}/projects/${params.projectId}/templates`,
+    requestBody
+  );
+}
+
+/**
+ * Update an existing project template
+ */
+export async function updateProjectTemplate(
+  params: UpdateTemplateParams
+): Promise<void> {
+  const client = getClient();
+
+  const requestBody: Record<string, unknown> = {
+    templateName: params.templateName,
+  };
+
+  if (params.users) requestBody.users = params.users;
+  if (params.body) requestBody.body = params.body;
+  if (params.guide) requestBody.guide = params.guide;
+  if (params.subject) requestBody.subject = params.subject;
+  if (params.dueDate) requestBody.dueDate = params.dueDate;
+  if (params.dueDateFlag !== undefined) requestBody.dueDateFlag = params.dueDateFlag;
+  if (params.milestoneId) requestBody.milestoneId = params.milestoneId;
+  if (params.tagIds) requestBody.tagIds = params.tagIds;
+  if (params.priority) requestBody.priority = params.priority;
+  if (params.isDefault !== undefined) requestBody.isDefault = params.isDefault;
+
+  await client.put(
+    `${PROJECTS_BASE}/projects/${params.projectId}/templates/${params.templateId}`,
+    requestBody
+  );
+}
+
+/**
+ * Delete a project template
+ */
+export async function deleteProjectTemplate(
+  projectId: string,
+  templateId: string
+): Promise<void> {
+  const client = getClient();
+
+  await client.delete(
+    `${PROJECTS_BASE}/projects/${projectId}/templates/${templateId}`
   );
 }
 

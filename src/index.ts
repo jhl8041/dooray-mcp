@@ -33,6 +33,9 @@ import { createTagTool, createTagHandler, createTagSchema } from './tools/projec
 import { updateTagGroupTool, updateTagGroupHandler, updateTagGroupSchema } from './tools/projects/update-tag-group.js';
 import { getProjectTemplateListTool, getProjectTemplateListHandler, getProjectTemplateListSchema } from './tools/projects/get-project-template-list.js';
 import { getProjectTemplateTool, getProjectTemplateHandler, getProjectTemplateSchema } from './tools/projects/get-project-template.js';
+import { createProjectTemplateTool, createProjectTemplateHandler, createProjectTemplateSchema } from './tools/projects/create-project-template.js';
+import { updateProjectTemplateTool, updateProjectTemplateHandler, updateProjectTemplateSchema } from './tools/projects/update-project-template.js';
+import { deleteProjectTemplateTool, deleteProjectTemplateHandler, deleteProjectTemplateSchema } from './tools/projects/delete-project-template.js';
 import { getProjectMemberListTool, getProjectMemberListHandler, getProjectMemberListSchema } from './tools/projects/get-project-member-list.js';
 import { getProjectMemberGroupListTool, getProjectMemberGroupListHandler, getProjectMemberGroupListSchema } from './tools/projects/get-project-member-group-list.js';
 import { getProjectWorkflowListTool, getProjectWorkflowListHandler, getProjectWorkflowListSchema } from './tools/projects/get-project-workflow-list.js';
@@ -81,6 +84,9 @@ const toolRegistry = {
   'update-tag-group': { handler: updateTagGroupHandler, schema: updateTagGroupSchema },
   'get-project-template-list': { handler: getProjectTemplateListHandler, schema: getProjectTemplateListSchema },
   'get-project-template': { handler: getProjectTemplateHandler, schema: getProjectTemplateSchema },
+  'create-project-template': { handler: createProjectTemplateHandler, schema: createProjectTemplateSchema },
+  'update-project-template': { handler: updateProjectTemplateHandler, schema: updateProjectTemplateSchema },
+  'delete-project-template': { handler: deleteProjectTemplateHandler, schema: deleteProjectTemplateSchema },
   'get-project-member-list': { handler: getProjectMemberListHandler, schema: getProjectMemberListSchema },
   'get-project-member-group-list': { handler: getProjectMemberGroupListHandler, schema: getProjectMemberGroupListSchema },
   'get-project-workflow-list': { handler: getProjectWorkflowListHandler, schema: getProjectWorkflowListSchema },
@@ -124,6 +130,9 @@ const tools = [
   updateTagGroupTool,
   getProjectTemplateListTool,
   getProjectTemplateTool,
+  createProjectTemplateTool,
+  updateProjectTemplateTool,
+  deleteProjectTemplateTool,
   getProjectMemberListTool,
   getProjectMemberGroupListTool,
   getProjectWorkflowListTool,
