@@ -61,6 +61,9 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `update-tag-group` - 태그 그룹 설정 수정
 - `get-project-template-list` - 템플릿 목록
 - `get-project-template` - 템플릿 상세정보
+- `create-project-template` - 템플릿 생성
+- `update-project-template` - 템플릿 수정
+- `delete-project-template` - 템플릿 삭제
 - `get-project-member-list` - 프로젝트 멤버 목록
 - `get-project-member-group-list` - 멤버 그룹 목록
 
