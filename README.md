@@ -61,6 +61,25 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `get-project-member-list` - 프로젝트 멤버 목록
 - `get-project-member-group-list` - 멤버 그룹 목록
 
+### 첨부파일
+- `upload-attachment` - 파일 업로드
+- `get-attachment-list` - 첨부파일 목록
+- `get-attachment-metadata` - 첨부파일 메타데이터
+- `download-attachment` - 파일 다운로드
+- `delete-attachment` - 첨부파일 삭제
+
+### 위키
+- `get-wiki-list` - 위키 목록
+- `get-wiki-page-list` - 위키 페이지 목록
+- `get-wiki-page` - 위키 페이지 상세정보
+- `create-wiki-page` - 위키 페이지 생성
+- `update-wiki-page` - 위키 페이지 수정
+- `get-wiki-page-comment-list` - 위키 페이지 댓글 목록
+- `get-wiki-page-comment` - 위키 페이지 댓글 상세정보
+- `create-wiki-page-comment` - 위키 페이지 댓글 작성
+- `update-wiki-page-comment` - 위키 페이지 댓글 수정
+- `delete-wiki-page-comment` - 위키 페이지 댓글 삭제
+
 ## 개발
 
 ```bash

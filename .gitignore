@@ -25,6 +25,7 @@ npm-debug.log*
 # AI
 /.serena/
 /.claude/
+/.omc/
 CLAUDE.md
 /_bmad/
 /_bmad-output/
