@@ -1,0 +1,27 @@
+# Smithery configuration for Dooray MCP Server
+# https://smithery.ai/docs/config
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      DOORAY_API_TOKEN:
+        type: string
+        description: "Dooray API token (get from https://dooray.com/settings/token)"
+        required: true
+      DOORAY_API_BASE_URL:
+        type: string
+        description: "Dooray API base URL (optional)"
+        default: "https://api.dooray.com"
+    required:
+      - DOORAY_API_TOKEN
+  commandFunction: |
+    (config) => ({
+      command: 'npx',
+      args: ['@jhl8041/dooray-mcp@latest'],
+      env: {
+        DOORAY_API_TOKEN: config.DOORAY_API_TOKEN,
+        DOORAY_API_BASE_URL: config.DOORAY_API_BASE_URL || 'https://api.dooray.com'
+      }
+    })

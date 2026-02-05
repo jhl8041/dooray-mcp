@@ -1,9 +1,21 @@
 # Dooray MCP Server
 
+[![MCP Badge](https://lobehub.com/badge/mcp-full/jhl8041-dooray-mcp?theme=light)](https://lobehub.com/mcp/jhl8041-dooray-mcp)
+
+MCP server for [Dooray!](https://dooray.com) - enabling AI assistants to interact with Dooray projects, tasks, wikis, and more.
+
 ## 설치
 
+### NPM (권장)
 ```bash
 npm install -g @jhl8041/dooray-mcp
+```
+
+### Smithery
+[![smithery badge](https://smithery.ai/badge/@jhl8041/dooray-mcp)](https://smithery.ai/server/@jhl8041/dooray-mcp)
+
+```bash
+npx -y @smithery/cli install @jhl8041/dooray-mcp --client claude
 ```
 
 ## 설정
@@ -93,6 +105,27 @@ npm run build   # 빌드
 npm run dev     # 개발 모드
 npm run watch   # Watch 모드
 ```
+
+## Prompts (프롬프트)
+
+사전 정의된 프롬프트 템플릿을 제공합니다:
+
+| Prompt | 설명 |
+|--------|------|
+| `create-task-with-template` | 구조화된 템플릿으로 새 업무 생성 (bug, feature, improvement, general) |
+| `weekly-task-summary` | 주간 업무 요약 생성 |
+| `project-status-report` | 프로젝트 상태 리포트 생성 |
+| `task-review-checklist` | 업무 검토 체크리스트 생성 |
+
+## Resources (리소스)
+
+컨텍스트 데이터를 제공하는 리소스:
+
+| URI | 설명 |
+|-----|------|
+| `dooray://api/info` | Dooray API 정보 및 사용 가능한 도구 목록 |
+| `dooray://workflows/reference` | 워크플로우 상태 참조 가이드 (backlog, registered, working, closed) |
+| `dooray://priority/reference` | 업무 우선순위 참조 가이드 |
 
 ## 라이선스
 
