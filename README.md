@@ -83,8 +83,21 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `upload-attachment` - 파일 업로드
 - `get-attachment-list` - 첨부파일 목록
 - `get-attachment-metadata` - 첨부파일 메타데이터
-- `download-attachment` - 파일 다운로드
+- `download-attachment` - 파일 다운로드 (savePath 옵션으로 로컬 저장 지원)
 - `delete-attachment` - 첨부파일 삭제
+
+### 드라이브
+- `get-drive-list` - 드라이브 목록 (개인/프로젝트)
+- `get-drive-file-list` - 파일/폴더 목록 조회
+- `get-drive-file-meta` - 파일 메타정보 조회 (file ID만으로)
+- `create-drive-folder` - 폴더 생성
+- `rename-drive-file` - 파일/폴더 이름 변경
+- `move-drive-file` - 파일/폴더 이동 (휴지통 이동 포함)
+- `copy-drive-file` - 파일 복사
+- `delete-drive-file` - 휴지통 파일 영구삭제
+- `upload-drive-file` - 파일 업로드
+- `download-drive-file` - 파일 다운로드 (savePath 옵션으로 로컬 저장 지원)
+- `update-drive-file` - 파일 새버전 업로드
 
 ### 위키
 - `get-wiki-list` - 위키 목록
