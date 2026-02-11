@@ -1,22 +1,21 @@
 /**
- * Download Attachment Tool
- * Download a file attachment from a task
+ * Download Wiki Attach File Tool
+ * Download a file from wiki using attachFileId
  */
 
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
-import * as projectsApi from '../../api/projects.js';
+import * as wikiApi from '../../api/wiki.js';
 import { formatError } from '../../utils/errors.js';
 
-export const downloadAttachmentSchema = z.object({
-  projectId: z.string().describe('Project ID'),
-  taskId: z.string().describe('Task ID (post ID)'),
-  fileId: z.string().describe('File ID'),
+export const downloadWikiAttachFileSchema = z.object({
+  wikiId: z.string().describe('Wiki ID'),
+  attachFileId: z.string().describe('Attach file ID (from page detail API: $.result.files.attachFileId or $.result.images.attachFileId)'),
   savePath: z.string().optional().describe('Local file path to save the downloaded file. If omitted, returns base64 data (only suitable for small files)'),
 });
 
-export type DownloadAttachmentInput = z.infer<typeof downloadAttachmentSchema>;
+export type DownloadWikiAttachFileInput = z.infer<typeof downloadWikiAttachFileSchema>;
 
 /**
  * Extract filename from Content-Disposition header
@@ -24,12 +23,9 @@ export type DownloadAttachmentInput = z.infer<typeof downloadAttachmentSchema>;
 function extractFilename(contentDisposition?: string): string | undefined {
   if (!contentDisposition) return undefined;
 
-  // Try to extract filename from header
-  // Format: attachment; filename="example.pdf" or attachment; filename*=UTF-8''example.pdf
   const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
   if (filenameMatch) {
     let filename = filenameMatch[1].replace(/['"]/g, '');
-    // Handle URL-encoded filenames
     try {
       filename = decodeURIComponent(filename);
     } catch {
@@ -40,19 +36,16 @@ function extractFilename(contentDisposition?: string): string | undefined {
   return undefined;
 }
 
-export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
+export async function downloadWikiAttachFileHandler(args: DownloadWikiAttachFileInput) {
   try {
-    const result = await projectsApi.downloadTaskAttachment(
-      args.projectId,
-      args.taskId,
-      args.fileId
+    const result = await wikiApi.downloadWikiAttachFile(
+      args.wikiId,
+      args.attachFileId
     );
 
-    // Extract filename from Content-Disposition header
     const filename = extractFilename(result.contentDisposition);
 
     if (args.savePath) {
-      // Save to local file
       let targetPath = args.savePath;
       const isDirectory = targetPath.endsWith('/') ||
         (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory());
@@ -61,7 +54,7 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
         if (!fs.existsSync(targetPath)) {
           fs.mkdirSync(targetPath, { recursive: true });
         }
-        targetPath = path.join(targetPath, filename || `attachment-${args.fileId}`);
+        targetPath = path.join(targetPath, filename || `wiki-attach-${args.attachFileId}`);
       } else {
         const dir = path.dirname(targetPath);
         if (!fs.existsSync(dir)) {
@@ -77,7 +70,7 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
             type: 'text',
             text: JSON.stringify({
               success: true,
-              fileId: args.fileId,
+              attachFileId: args.attachFileId,
               filename: filename,
               contentType: result.contentType,
               contentLength: result.contentLength,
@@ -89,7 +82,6 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
       };
     }
 
-    // Convert ArrayBuffer to Base64 (for small files)
     const base64Data = Buffer.from(result.data).toString('base64');
 
     return {
@@ -98,7 +90,7 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
           type: 'text',
           text: JSON.stringify({
             success: true,
-            fileId: args.fileId,
+            attachFileId: args.attachFileId,
             filename: filename,
             contentType: result.contentType,
             contentLength: result.contentLength,
@@ -120,50 +112,38 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
   }
 }
 
-export const downloadAttachmentTool = {
-  name: 'download-attachment',
-  description: `Download a file attachment from a Dooray task.
+export const downloadWikiAttachFileTool = {
+  name: 'download-wiki-attach-file',
+  description: `Download a file from a Dooray wiki using attach file ID.
 
 **Required Parameters:**
-- projectId: The project ID
-- taskId: The task ID (post ID)
-- fileId: The file ID (get from get-attachment-list)
+- wikiId: The wiki ID
+- attachFileId: The attach file ID (get from wiki page detail API: $.result.files.attachFileId or $.result.images.attachFileId)
 
 **Optional:**
 - savePath: Local path to save the file. Can be a directory (filename auto-detected) or full file path. **Recommended for large files.**
 
 **Examples:**
-- Save to file: { "projectId": "123", "taskId": "456", "fileId": "789", "savePath": "/tmp/downloads/" }
-- Base64 (small files): { "projectId": "123", "taskId": "456", "fileId": "789" }
+- Save to file: { "wikiId": "123", "attachFileId": "456", "savePath": "/tmp/downloads/" }
+- Base64 (small files): { "wikiId": "123", "attachFileId": "456" }
 
-**Response Fields:**
-- success: Whether download succeeded
-- fileId: The file ID
-- filename: Original filename
-- contentType: MIME type of the file
-- contentLength: File size in bytes
-- savedTo: (when savePath used) Local path where file was saved
-- base64Data: (when savePath omitted) Base64 encoded file content`,
+**Note:** The attachFileId is different from fileId. Use this endpoint when you have an attachFileId from the page detail API's $.result.files.attachFileId or $.result.images.attachFileId field.`,
   inputSchema: {
     type: 'object',
     properties: {
-      projectId: {
+      wikiId: {
         type: 'string',
-        description: 'Project ID',
+        description: 'Wiki ID',
       },
-      taskId: {
+      attachFileId: {
         type: 'string',
-        description: 'Task ID (post ID)',
-      },
-      fileId: {
-        type: 'string',
-        description: 'File ID',
+        description: 'Attach file ID (from page detail API)',
       },
       savePath: {
         type: 'string',
         description: 'Local path to save (directory or full path). Recommended for large files.',
       },
     },
-    required: ['projectId', 'taskId', 'fileId'],
+    required: ['wikiId', 'attachFileId'],
   },
 };

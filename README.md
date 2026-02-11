@@ -83,7 +83,7 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `upload-attachment` - 파일 업로드
 - `get-attachment-list` - 첨부파일 목록
 - `get-attachment-metadata` - 첨부파일 메타데이터
-- `download-attachment` - 파일 다운로드
+- `download-attachment` - 파일 다운로드 (savePath 옵션으로 로컬 저장 지원)
 - `delete-attachment` - 첨부파일 삭제
 
 ### 드라이브
@@ -110,6 +110,13 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `create-wiki-page-comment` - 위키 페이지 댓글 작성
 - `update-wiki-page-comment` - 위키 페이지 댓글 수정
 - `delete-wiki-page-comment` - 위키 페이지 댓글 삭제
+
+### 위키 파일
+- `upload-wiki-file` - 위키에 파일 업로드 (페이지 생성 전 pre-upload용, attachFileId 반환)
+- `upload-wiki-page-file` - 기존 위키 페이지에 파일 업로드
+- `download-wiki-page-file` - 위키 페이지 첨부파일 다운로드 (fileId 사용, savePath 옵션으로 로컬 저장 지원)
+- `download-wiki-attach-file` - 위키 첨부파일 다운로드 (attachFileId 사용, savePath 옵션으로 로컬 저장 지원)
+- `delete-wiki-page-file` - 위키 페이지 첨부파일 삭제
 
 ## 개발
 
