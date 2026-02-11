@@ -139,3 +139,46 @@ export async function deleteWikiPageComment(wikiId: string, pageId: string, comm
   const client = getClient();
   await client.delete(`${WIKI_BASE}/wikis/${wikiId}/pages/${pageId}/comments/${commentId}`);
 }
+
+// Download file from wiki page
+export async function downloadWikiPageFile(
+  wikiId: string,
+  pageId: string,
+  fileId: string
+): Promise<{
+  data: ArrayBuffer;
+  contentType: string;
+  contentDisposition?: string;
+  contentLength?: number;
+}> {
+  const client = getClient();
+  return client.downloadFile(
+    `${WIKI_BASE}/wikis/${wikiId}/pages/${pageId}/files/${fileId}`
+  );
+}
+
+// Delete file from wiki page
+export async function deleteWikiPageFile(
+  wikiId: string,
+  pageId: string,
+  fileId: string
+): Promise<void> {
+  const client = getClient();
+  await client.delete(`${WIKI_BASE}/wikis/${wikiId}/pages/${pageId}/files/${fileId}`);
+}
+
+// Download wiki attach file (via attachFiles endpoint)
+export async function downloadWikiAttachFile(
+  wikiId: string,
+  attachFileId: string
+): Promise<{
+  data: ArrayBuffer;
+  contentType: string;
+  contentDisposition?: string;
+  contentLength?: number;
+}> {
+  const client = getClient();
+  return client.downloadFile(
+    `${WIKI_BASE}/wikis/${wikiId}/attachFiles/${attachFileId}`
+  );
+}

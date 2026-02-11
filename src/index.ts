@@ -74,6 +74,13 @@ import { createWikiPageCommentTool, createWikiPageCommentHandler, createWikiPage
 import { updateWikiPageCommentTool, updateWikiPageCommentHandler, updateWikiPageCommentSchema } from './tools/wiki/update-wiki-comment.js';
 import { deleteWikiPageCommentTool, deleteWikiPageCommentHandler, deleteWikiPageCommentSchema } from './tools/wiki/delete-wiki-comment.js';
 
+// Wiki file tools
+import { uploadWikiPageFileTool, uploadWikiPageFileHandler, uploadWikiPageFileSchema } from './tools/wiki/upload-wiki-page-file.js';
+import { downloadWikiPageFileTool, downloadWikiPageFileHandler, downloadWikiPageFileSchema } from './tools/wiki/download-wiki-page-file.js';
+import { deleteWikiPageFileTool, deleteWikiPageFileHandler, deleteWikiPageFileSchema } from './tools/wiki/delete-wiki-page-file.js';
+import { uploadWikiFileTool, uploadWikiFileHandler, uploadWikiFileSchema } from './tools/wiki/upload-wiki-file.js';
+import { downloadWikiAttachFileTool, downloadWikiAttachFileHandler, downloadWikiAttachFileSchema } from './tools/wiki/download-wiki-attach-file.js';
+
 // Load environment variables
 dotenv.config();
 
@@ -137,6 +144,13 @@ const toolRegistry = {
   'create-wiki-page-comment': { handler: createWikiPageCommentHandler, schema: createWikiPageCommentSchema },
   'update-wiki-page-comment': { handler: updateWikiPageCommentHandler, schema: updateWikiPageCommentSchema },
   'delete-wiki-page-comment': { handler: deleteWikiPageCommentHandler, schema: deleteWikiPageCommentSchema },
+
+  // Wiki file tools
+  'upload-wiki-page-file': { handler: uploadWikiPageFileHandler, schema: uploadWikiPageFileSchema },
+  'download-wiki-page-file': { handler: downloadWikiPageFileHandler, schema: downloadWikiPageFileSchema },
+  'delete-wiki-page-file': { handler: deleteWikiPageFileHandler, schema: deleteWikiPageFileSchema },
+  'upload-wiki-file': { handler: uploadWikiFileHandler, schema: uploadWikiFileSchema },
+  'download-wiki-attach-file': { handler: downloadWikiAttachFileHandler, schema: downloadWikiAttachFileSchema },
 };
 
 /**
@@ -196,6 +210,13 @@ const tools = [
   createWikiPageCommentTool,
   updateWikiPageCommentTool,
   deleteWikiPageCommentTool,
+
+  // Wiki file tools
+  uploadWikiPageFileTool,
+  downloadWikiPageFileTool,
+  deleteWikiPageFileTool,
+  uploadWikiFileTool,
+  downloadWikiAttachFileTool,
 ];
 
 /**
