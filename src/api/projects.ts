@@ -205,6 +205,25 @@ export async function setTaskWorkflow(
 }
 
 /**
+ * Set parent post for a task (상위 업무 설정)
+ * POST /project/v1/projects/{project-id}/posts/{post-id}/set-parent-post
+ *
+ * 계층 구조 설정은 할 수 없습니다.
+ * 즉, 상위업무를 가진 하위업무를 상위 업무로 설정할 수 없습니다.
+ */
+export async function setParentPost(
+  projectId: string,
+  taskId: string,
+  parentPostId: string
+): Promise<void> {
+  const client = getClient();
+  await client.post(
+    `${PROJECTS_BASE}/projects/${projectId}/posts/${taskId}/set-parent-post`,
+    { parentPostId }
+  );
+}
+
+/**
  * Create a comment on a task (댓글 생성)
  */
 export async function createTaskComment(
