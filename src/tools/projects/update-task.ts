@@ -30,6 +30,7 @@ export const updateTaskSchema = z.object({
   tagIds: z.array(z.string()).optional().describe('New array of tag IDs'),
   priority: z.enum(['highest', 'high', 'normal', 'low', 'lowest', 'none']).optional().describe('Task priority level'),
   workflowId: z.string().optional().describe('New workflow ID (status)'),
+  parentPostId: z.string().optional().describe('Parent task ID to set as parent (상위 업무 설정)'),
 });
 
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
@@ -65,7 +66,12 @@ export async function updateTaskHandler(args: UpdateTaskInput) {
       await projectsApi.setTaskWorkflow(args.projectId, args.taskId, args.workflowId);
     }
 
-    // 4. 최종 task 상태 반환 (기본 업데이트 없이 workflow만 변경한 경우)
+    // 4. 상위 업무 설정 (별도 API 호출)
+    if (args.parentPostId !== undefined) {
+      await projectsApi.setParentPost(args.projectId, args.taskId, args.parentPostId);
+    }
+
+    // 5. 최종 task 상태 반환 (기본 업데이트 없이 workflow나 상위 업무만 변경한 경우)
     if (!result) {
       result = await projectsApi.getTaskDetails(args.taskId, args.projectId);
     }
@@ -117,6 +123,9 @@ export const updateTaskTool = {
    - Provide workflowId to change task status
    - Workflow classes: backlog (대기), registered (등록/할 일), working (진행 중), closed (완료)
 
+5. **Handle Parent Post (상위 업무)**: Provide parentPostId to set a parent task
+   - Nested hierarchy is NOT allowed: a task that already has sub-tasks cannot be set as a parent
+
 **IMPORTANT NOTES**:
 - **Complete Replacement**: assignees, cc, and tagIds completely REPLACE existing values (not merged)
 - **Preserve Data**: Only provide fields you want to change; unprovided fields remain unchanged
@@ -134,6 +143,7 @@ When given a Dooray task URL like "https://nhnent.dooray.com/task/PROJECT_ID/TAS
 - Change status: {"projectId": "123", "taskId": "42", "workflowId": "working"}
 - Update tags: {"projectId": "123", "taskId": "42", "tagIds": ["tag1", "tag2"]}
 - Clear milestone: {"projectId": "123", "taskId": "42", "milestoneId": null}
+- Set parent task: {"projectId": "123", "taskId": "42", "parentPostId": "99"}
 
 Returns: Updated task with all current details.`,
   inputSchema: {
@@ -210,6 +220,10 @@ Returns: Updated task with all current details.`,
       workflowId: {
         type: 'string',
         description: 'New workflow ID (status). Use get-project-workflow-list to see available workflow statuses for this project. Workflow classes: backlog (대기), registered (등록/할 일), working (진행 중), closed (완료).',
+      },
+      parentPostId: {
+        type: 'string',
+        description: 'Parent task ID to set as parent (상위 업무 설정). Nested hierarchy is NOT allowed: a task that already has sub-tasks cannot be set as a parent.',
       },
     },
     required: ['projectId', 'taskId'],
