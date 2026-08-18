@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jhl8041-dooray-mcp-badge.png)](https://mseep.ai/app/jhl8041-dooray-mcp)
+
 # Dooray MCP Server
 
 [![MCP Badge](https://lobehub.com/badge/mcp-full/jhl8041-dooray-mcp?theme=light)](https://lobehub.com/mcp/jhl8041-dooray-mcp)
