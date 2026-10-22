@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import * as projectsApi from '../../api/projects.js';
 import { formatError } from '../../utils/errors.js';
-import { transformMembers } from '../../utils/member-transform.js';
+import { transformMembers, toRequestMembers, mergeMembers } from '../../utils/member-transform.js';
 
 const memberSchema = z.object({
   id: z.string(),
@@ -31,12 +31,61 @@ export const updateTaskSchema = z.object({
   priority: z.enum(['highest', 'high', 'normal', 'low', 'lowest', 'none']).optional().describe('Task priority level'),
   workflowId: z.string().optional().describe('New workflow ID (status)'),
   parentPostId: z.string().optional().describe('Parent task ID to set as parent (상위 업무 설정)'),
+  addAssignees: z.array(memberSchema).optional().describe('Assignees to add, keeping current ones'),
+  removeAssignees: z.array(memberSchema).optional().describe('Assignees to remove'),
+  addCc: z.array(memberSchema).optional().describe('CC recipients to add, keeping current ones'),
+  removeCc: z.array(memberSchema).optional().describe('CC recipients to remove'),
+  addTagIds: z.array(z.string()).optional().describe('Tag IDs to add, keeping current tags'),
+  removeTagIds: z.array(z.string()).optional().describe('Tag IDs to remove'),
 });
 
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
+/**
+ * Resolve add/remove options against the current task
+ * Replacement options (assignees, cc, tagIds) and add/remove options for the same field cannot be mixed
+ */
+async function resolveIncrementalChanges(args: UpdateTaskInput) {
+  const usersIncremental = [args.addAssignees, args.removeAssignees, args.addCc, args.removeCc]
+    .some(list => list !== undefined);
+  const tagsIncremental = args.addTagIds !== undefined || args.removeTagIds !== undefined;
+  if (!usersIncremental && !tagsIncremental) return {};
+
+  if (usersIncremental && (args.assignees !== undefined || args.cc !== undefined)) {
+    throw new Error('Use either assignees/cc (replace) or addAssignees/removeAssignees/addCc/removeCc (add, remove), not both');
+  }
+  if (tagsIncremental && args.tagIds !== undefined) {
+    throw new Error('Use either tagIds (replace) or addTagIds/removeTagIds (add, remove), not both');
+  }
+
+  const task = await projectsApi.getTaskDetails(args.taskId, args.projectId);
+  const changes: { users?: { to: ReturnType<typeof mergeMembers>; cc: ReturnType<typeof mergeMembers> }; tagIds?: string[] } = {};
+
+  if (usersIncremental) {
+    // Send both lists so the side that was not touched keeps its current members
+    changes.users = {
+      to: mergeMembers(
+        toRequestMembers(task.users?.to),
+        transformMembers(args.addAssignees),
+        transformMembers(args.removeAssignees)
+      ),
+      cc: mergeMembers(toRequestMembers(task.users?.cc), transformMembers(args.addCc), transformMembers(args.removeCc)),
+    };
+  }
+
+  if (tagsIncremental) {
+    const removeIds = new Set(args.removeTagIds || []);
+    const currentIds = (task.tags || []).map(tag => tag.id);
+    changes.tagIds = [...new Set([...currentIds, ...(args.addTagIds || [])])].filter(id => !removeIds.has(id));
+  }
+
+  return changes;
+}
+
 export async function updateTaskHandler(args: UpdateTaskInput) {
   try {
+    const incremental = await resolveIncrementalChanges(args);
+
     // 1. 기본 필드 업데이트 파라미터 구성
     const updateParams: Record<string, unknown> = {};
 
@@ -54,6 +103,10 @@ export async function updateTaskHandler(args: UpdateTaskInput) {
         cc: transformMembers(args.cc),
       };
     }
+
+    // 추가, 제거 옵션으로 계산한 담당자, 참조자, 태그
+    if (incremental.users) updateParams.users = incremental.users;
+    if (incremental.tagIds) updateParams.tagIds = incremental.tagIds;
 
     // 2. 기본 필드 업데이트 (변경사항이 있는 경우만)
     let result = null;
@@ -128,6 +181,7 @@ export const updateTaskTool = {
 
 **IMPORTANT NOTES**:
 - **Complete Replacement**: assignees, cc, and tagIds completely REPLACE existing values (not merged)
+- **Add / Remove**: addAssignees, removeAssignees, addCc, removeCc, addTagIds, removeTagIds change only what you list and keep the rest. The tool reads the current task itself, so get-task is not needed first. Do not combine them with the replacement option of the same field
 - **Preserve Data**: Only provide fields you want to change; unprovided fields remain unchanged
 - **Korean Terms**: "to" = 담당자 (assignee), "cc" = 참조 (reference)
 - **Priority**: Use "none" to remove priority
@@ -144,6 +198,8 @@ When given a Dooray task URL like "https://nhnent.dooray.com/task/PROJECT_ID/TAS
 - Update tags: {"projectId": "123", "taskId": "42", "tagIds": ["tag1", "tag2"]}
 - Clear milestone: {"projectId": "123", "taskId": "42", "milestoneId": null}
 - Set parent task: {"projectId": "123", "taskId": "42", "parentPostId": "99"}
+- Add a CC, keep others: {"projectId": "123", "taskId": "42", "addCc": [{"id": "user456", "type": "member"}]}
+- Add and remove tags: {"projectId": "123", "taskId": "42", "addTagIds": ["tag3"], "removeTagIds": ["tag1"]}
 
 Returns: Updated task with all current details.`,
   inputSchema: {
@@ -224,6 +280,64 @@ Returns: Updated task with all current details.`,
       parentPostId: {
         type: 'string',
         description: 'Parent task ID to set as parent (상위 업무 설정). Nested hierarchy is NOT allowed: a task that already has sub-tasks cannot be set as a parent.',
+      },
+      addAssignees: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', enum: ['member', 'group', 'email'] },
+          },
+          required: ['id', 'type'],
+        },
+        description: 'Assignees to add, keeping current ones. Cannot be combined with assignees or cc.',
+      },
+      removeAssignees: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', enum: ['member', 'group', 'email'] },
+          },
+          required: ['id', 'type'],
+        },
+        description: 'Assignees to remove. Cannot be combined with assignees or cc.',
+      },
+      addCc: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', enum: ['member', 'group', 'email'] },
+          },
+          required: ['id', 'type'],
+        },
+        description: 'CC recipients to add, keeping current ones. Cannot be combined with assignees or cc.',
+      },
+      removeCc: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', enum: ['member', 'group', 'email'] },
+          },
+          required: ['id', 'type'],
+        },
+        description: 'CC recipients to remove. Cannot be combined with assignees or cc.',
+      },
+      addTagIds: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Tag IDs to add, keeping current tags. Cannot be combined with tagIds.',
+      },
+      removeTagIds: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Tag IDs to remove. Cannot be combined with tagIds.',
       },
     },
     required: ['projectId', 'taskId'],

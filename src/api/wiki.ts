@@ -12,6 +12,7 @@ import {
   WikiPageCreateParams,
   WikiPageCreateResponse,
   WikiPageUpdateParams,
+  WikiPageMoveParams,
   WikiComment,
   WikiCommentListParams,
   WikiCommentCreateParams,
@@ -90,6 +91,24 @@ export async function updateWikiPageContent(wikiId: string, pageId: string, cont
   await client.put(`${WIKI_BASE}/wikis/${wikiId}/pages/${pageId}/content`, {
     body: { mimeType: 'text/x-markdown', content }
   });
+}
+
+// Move wiki page (change parent, order, or wiki)
+export async function moveWikiPage(params: WikiPageMoveParams): Promise<void> {
+  const client = getClient();
+  const requestBody: Record<string, unknown> = {
+    targetParentPageId: params.targetParentPageId,
+    withChildren: params.withChildren ?? true,
+  };
+  if (params.targetWikiId) requestBody.targetWikiId = params.targetWikiId;
+  if (params.beforePageId) requestBody.beforePageId = params.beforePageId;
+  await client.post(`${WIKI_BASE}/wikis/${params.wikiId}/pages/${params.pageId}/move`, requestBody);
+}
+
+// Delete wiki page
+export async function deleteWikiPage(wikiId: string, pageId: string): Promise<void> {
+  const client = getClient();
+  await client.delete(`${WIKI_BASE}/wikis/${wikiId}/pages/${pageId}`);
 }
 
 // Update wiki page referrers

@@ -751,6 +751,15 @@ export interface WikiComment {
   };
 }
 
+export interface WikiPageMoveParams {
+  wikiId: string;
+  pageId: string;
+  targetParentPageId: string;
+  targetWikiId?: string;
+  withChildren?: boolean;
+  beforePageId?: string;
+}
+
 export interface WikiCommentListParams {
   wikiId: string;
   pageId: string;
