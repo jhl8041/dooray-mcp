@@ -774,3 +774,109 @@ export interface WikiCommentUpdateParams {
   commentId: string;
   content: string;
 }
+
+// ============================================================================
+// Member Search API Types
+// ============================================================================
+
+export interface MemberSearchParams {
+  name?: string;
+  userCode?: string;
+  userCodeExact?: string;
+  externalEmailAddresses?: string[];
+  idProviderUserId?: string;
+  page?: number;
+  size?: number;
+}
+
+// ============================================================================
+// Calendar API Types
+// ============================================================================
+
+export interface Calendar {
+  id: string;
+  name: string;
+  type: 'private' | 'project' | 'subscription';
+  createdAt: string;
+  ownerOrganizationMemberId?: string;
+  projectId?: string;
+  me?: {
+    default: boolean | string;
+    color: string;
+    listed: boolean | string;
+    checked: boolean | string;
+    role: string;
+    order: number;
+  };
+}
+
+export interface CalendarListParams {
+  page?: number;
+  size?: number;
+}
+
+export interface CalendarEvent {
+  id: string;
+  masterScheduleId?: string;
+  calendar: { id: string; name: string };
+  recurrenceId?: string | null;
+  startedAt: string;
+  endedAt: string;
+  location?: string | null;
+  subject: string;
+  body?: { mimeType: string; content: string };
+  createdAt: string;
+  updatedAt: string;
+  category: string;
+  wholeDayFlag?: boolean;
+  recurrenceType?: 'none' | 'modified' | 'unmodified';
+  users?: Record<string, unknown>;
+  me?: Record<string, unknown>;
+  files?: Array<{ id: string; name: string; size: number | string }>;
+  [key: string]: unknown;
+}
+
+export interface CalendarEventListParams {
+  timeMin: string;
+  timeMax: string;
+  calendars?: string[];
+  postType?: 'toMe' | 'toCcMe' | 'fromToCcMe';
+  category?: 'general' | 'post' | 'milestone';
+}
+
+export interface CalendarRecurrenceRule {
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  interval?: number;
+  until?: string;
+  byday?: string;
+  bymonth?: string;
+  bymonthday?: string;
+  timezoneName?: string;
+}
+
+export interface CalendarPersonalSettings {
+  alarms?: Array<{ action: 'mail' | 'app'; trigger: string }>;
+  busy?: boolean;
+  class?: 'public' | 'private';
+}
+
+export interface CalendarEventBody {
+  users?: {
+    to?: DoorayApiMember[];
+    cc?: DoorayApiMember[];
+  };
+  subject?: string;
+  body?: { mimeType: 'text/x-markdown' | 'text/html'; content: string };
+  startedAt?: string;
+  endedAt?: string;
+  wholeDayFlag?: boolean;
+  location?: string;
+  recurrenceRule?: CalendarRecurrenceRule;
+  personalSettings?: CalendarPersonalSettings;
+}
+
+export interface CreateCalendarEventResponse {
+  id: string;
+}
+
+export type CalendarEventDeleteType = 'this' | 'wholeFromThis' | 'whole';

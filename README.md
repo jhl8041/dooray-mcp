@@ -54,6 +54,16 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 
 ### 공통
 - `get-my-member-info` - 사용자 정보 조회
+- `get-member-list` - 조직 전체 멤버 검색 (이름, 사용자 ID, 이메일, SSO ID)
+- `get-member` - 멤버 상세정보
+
+### 캘린더
+- `get-calendar-list` - 캘린더 목록
+- `get-calendar-event-list` - 기간 일정 목록 (최대 1년)
+- `get-calendar-event` - 일정 상세정보 (본문, 참석자)
+- `create-calendar-event` - 일정 생성 (종일, 반복 일정 지원)
+- `update-calendar-event` - 일정 수정 (준 항목만 변경)
+- `delete-calendar-event` - 일정 삭제 (반복 일정 범위 지정)
 
 ### 프로젝트
 - `get-project-list` - 프로젝트 목록

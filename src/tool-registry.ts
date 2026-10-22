@@ -6,6 +6,8 @@
 import { z } from 'zod';
 
 import { getMyMemberInfoTool, getMyMemberInfoHandler, getMyMemberInfoSchema } from './tools/common/get-my-member-info.js';
+import { getMemberListTool, getMemberListHandler, getMemberListSchema } from './tools/common/get-member-list.js';
+import { getMemberTool, getMemberHandler, getMemberSchema } from './tools/common/get-member.js';
 import { getProjectListTool, getProjectListHandler, getProjectListSchema } from './tools/projects/get-project-list.js';
 import { getProjectTool, getProjectHandler, getProjectSchema } from './tools/projects/get-project.js';
 import { getTaskListTool, getTaskListHandler, getTaskListSchema } from './tools/projects/get-task-list.js';
@@ -60,6 +62,14 @@ import { deleteWikiPageFileTool, deleteWikiPageFileHandler, deleteWikiPageFileSc
 import { uploadWikiFileTool, uploadWikiFileHandler, uploadWikiFileSchema } from './tools/wiki/upload-wiki-file.js';
 import { downloadWikiAttachFileTool, downloadWikiAttachFileHandler, downloadWikiAttachFileSchema } from './tools/wiki/download-wiki-attach-file.js';
 
+// Calendar tools
+import { getCalendarListTool, getCalendarListHandler, getCalendarListSchema } from './tools/calendar/get-calendar-list.js';
+import { getCalendarEventListTool, getCalendarEventListHandler, getCalendarEventListSchema } from './tools/calendar/get-calendar-event-list.js';
+import { getCalendarEventTool, getCalendarEventHandler, getCalendarEventSchema } from './tools/calendar/get-calendar-event.js';
+import { createCalendarEventTool, createCalendarEventHandler, createCalendarEventSchema } from './tools/calendar/create-calendar-event.js';
+import { updateCalendarEventTool, updateCalendarEventHandler, updateCalendarEventSchema } from './tools/calendar/update-calendar-event.js';
+import { deleteCalendarEventTool, deleteCalendarEventHandler, deleteCalendarEventSchema } from './tools/calendar/delete-calendar-event.js';
+
 interface ToolAnnotations {
   readOnlyHint?: boolean;
   destructiveHint?: boolean;
@@ -76,6 +86,8 @@ export interface ToolDefinition {
 export const toolDefinitions: ToolDefinition[] = [
   // Common tools
   { tool: getMyMemberInfoTool, handler: getMyMemberInfoHandler, schema: getMyMemberInfoSchema },
+  { tool: getMemberListTool, handler: getMemberListHandler, schema: getMemberListSchema },
+  { tool: getMemberTool, handler: getMemberHandler, schema: getMemberSchema },
 
   // Projects tools
   { tool: getProjectListTool, handler: getProjectListHandler, schema: getProjectListSchema },
@@ -137,6 +149,14 @@ export const toolDefinitions: ToolDefinition[] = [
   { tool: deleteWikiPageFileTool, handler: deleteWikiPageFileHandler, schema: deleteWikiPageFileSchema },
   { tool: uploadWikiFileTool, handler: uploadWikiFileHandler, schema: uploadWikiFileSchema },
   { tool: downloadWikiAttachFileTool, handler: downloadWikiAttachFileHandler, schema: downloadWikiAttachFileSchema },
+
+  // Calendar tools
+  { tool: getCalendarListTool, handler: getCalendarListHandler, schema: getCalendarListSchema },
+  { tool: getCalendarEventListTool, handler: getCalendarEventListHandler, schema: getCalendarEventListSchema },
+  { tool: getCalendarEventTool, handler: getCalendarEventHandler, schema: getCalendarEventSchema },
+  { tool: createCalendarEventTool, handler: createCalendarEventHandler, schema: createCalendarEventSchema },
+  { tool: updateCalendarEventTool, handler: updateCalendarEventHandler, schema: updateCalendarEventSchema },
+  { tool: deleteCalendarEventTool, handler: deleteCalendarEventHandler, schema: deleteCalendarEventSchema },
 ];
 
 /**
