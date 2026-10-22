@@ -57,6 +57,7 @@ This tool retrieves complete details of a task including its full body content, 
    - Extract the numeric ID after "/tasks/" as taskId
    - Example: "https://nhnent.dooray.com/project/tasks/4206132384174602537"
      → {"taskId": "4206132384174602537"}
+   - Same for "https://nhnent.dooray.com/task/to/TASK_ID"
 
 **IMPORTANT**:
 - **taskId is REQUIRED**, projectId is OPTIONAL

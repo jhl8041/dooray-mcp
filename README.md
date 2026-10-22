@@ -72,10 +72,13 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `get-task-list` - 업무 검색/필터링
 - `get-task` - 업무 상세정보
 - `create-task` - 업무 생성
-- `update-task` - 업무 수정
+- `update-task` - 업무 수정 (담당자, 참조자, 태그 추가, 제거 옵션 포함)
+- `update-task-body` - 업무 본문 일부 치환
 - `create-task-comment` - 댓글 작성
 - `get-task-comment-list` - 댓글 목록
+- `get-task-comment` - 댓글 단건 조회
 - `update-task-comment` - 댓글 수정 (이메일 댓글 수정 불가)
+- `delete-task-comment` - 댓글 삭제
 - `get-milestone-list` - 마일스톤 목록
 - `get-tag-list` - 태그 목록
 - `get-tag` - 태그 상세정보
@@ -95,6 +98,7 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `get-attachment-metadata` - 첨부파일 메타데이터
 - `download-attachment` - 파일 다운로드 (savePath 옵션으로 로컬 저장 지원)
 - `delete-attachment` - 첨부파일 삭제
+- `download-all-attachments` - 첨부파일 일괄 다운로드 (디렉토리 저장)
 
 ### 드라이브
 - `get-drive-list` - 드라이브 목록 (개인/프로젝트)
@@ -112,9 +116,13 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 ### 위키
 - `get-wiki-list` - 위키 목록
 - `get-wiki-page-list` - 위키 페이지 목록
+- `get-wiki-page-tree` - 위키 페이지 트리 (깊이 지정)
 - `get-wiki-page` - 위키 페이지 상세정보
 - `create-wiki-page` - 위키 페이지 생성
 - `update-wiki-page` - 위키 페이지 수정
+- `update-wiki-page-body` - 위키 본문 일부 치환
+- `move-wiki-page` - 위키 페이지 이동 (부모, 순서, 다른 위키)
+- `delete-wiki-page` - 위키 페이지 삭제
 - `get-wiki-page-comment-list` - 위키 페이지 댓글 목록
 - `get-wiki-page-comment` - 위키 페이지 댓글 상세정보
 - `create-wiki-page-comment` - 위키 페이지 댓글 작성

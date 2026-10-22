@@ -272,6 +272,34 @@ export async function getTaskComments(
 }
 
 /**
+ * Get a single comment on a task (댓글 단건 조회)
+ */
+export async function getTaskComment(
+  projectId: string,
+  taskId: string,
+  commentId: string
+): Promise<TaskComment> {
+  const client = getClient();
+  return client.get<TaskComment>(
+    `${PROJECTS_BASE}/projects/${projectId}/posts/${taskId}/logs/${commentId}`
+  );
+}
+
+/**
+ * Delete a comment on a task (댓글 삭제)
+ */
+export async function deleteTaskComment(
+  projectId: string,
+  taskId: string,
+  commentId: string
+): Promise<void> {
+  const client = getClient();
+  await client.delete(
+    `${PROJECTS_BASE}/projects/${projectId}/posts/${taskId}/logs/${commentId}`
+  );
+}
+
+/**
  * Update a comment on a task (댓글 수정)
  */
 export async function updateTaskComment(

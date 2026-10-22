@@ -14,9 +14,12 @@ import { getTaskListTool, getTaskListHandler, getTaskListSchema } from './tools/
 import { getTaskTool, getTaskHandler, getTaskSchema } from './tools/projects/get-task.js';
 import { createTaskTool, createTaskHandler, createTaskSchema } from './tools/projects/create-task.js';
 import { updateTaskTool, updateTaskHandler, updateTaskSchema } from './tools/projects/update-task.js';
+import { updateTaskBodyTool, updateTaskBodyHandler, updateTaskBodySchema } from './tools/projects/update-task-body.js';
 import { createTaskCommentTool, createTaskCommentHandler, createTaskCommentSchema } from './tools/projects/create-task-comment.js';
 import { getTaskCommentListTool, getTaskCommentListHandler, getTaskCommentListSchema } from './tools/projects/get-task-comment-list.js';
 import { updateTaskCommentTool, updateTaskCommentHandler, updateTaskCommentSchema } from './tools/projects/update-task-comment.js';
+import { getTaskCommentTool, getTaskCommentHandler, getTaskCommentSchema } from './tools/projects/get-task-comment.js';
+import { deleteTaskCommentTool, deleteTaskCommentHandler, deleteTaskCommentSchema } from './tools/projects/delete-task-comment.js';
 import { getMilestoneListTool, getMilestoneListHandler, getMilestoneListSchema } from './tools/projects/get-milestone-list.js';
 import { getTagListTool, getTagListHandler, getTagListSchema } from './tools/projects/get-tag-list.js';
 import { getTagTool, getTagHandler, getTagSchema } from './tools/projects/get-tag.js';
@@ -35,6 +38,7 @@ import { getAttachmentListTool, getAttachmentListHandler, getAttachmentListSchem
 import { getAttachmentMetadataTool, getAttachmentMetadataHandler, getAttachmentMetadataSchema } from './tools/projects/get-attachment-metadata.js';
 import { downloadAttachmentTool, downloadAttachmentHandler, downloadAttachmentSchema } from './tools/projects/download-attachment.js';
 import { deleteAttachmentTool, deleteAttachmentHandler, deleteAttachmentSchema } from './tools/projects/delete-attachment.js';
+import { downloadAllAttachmentsTool, downloadAllAttachmentsHandler, downloadAllAttachmentsSchema } from './tools/projects/download-all-attachments.js';
 import { getDriveListTool, getDriveListHandler, getDriveListSchema } from './tools/drive/get-drive-list.js';
 import { getDriveFileListTool, getDriveFileListHandler, getDriveFileListSchema } from './tools/drive/get-drive-file-list.js';
 import { getDriveFileMetaTool, getDriveFileMetaHandler, getDriveFileMetaSchema } from './tools/drive/get-drive-file-meta.js';
@@ -51,6 +55,10 @@ import { getWikiPageListTool, getWikiPageListHandler, getWikiPageListSchema } fr
 import { getWikiPageTool, getWikiPageHandler, getWikiPageSchema } from './tools/wiki/get-wiki-page.js';
 import { createWikiPageTool, createWikiPageHandler, createWikiPageSchema } from './tools/wiki/create-wiki-page.js';
 import { updateWikiPageTool, updateWikiPageHandler, updateWikiPageSchema } from './tools/wiki/update-wiki-page.js';
+import { updateWikiPageBodyTool, updateWikiPageBodyHandler, updateWikiPageBodySchema } from './tools/wiki/update-wiki-page-body.js';
+import { moveWikiPageTool, moveWikiPageHandler, moveWikiPageSchema } from './tools/wiki/move-wiki-page.js';
+import { deleteWikiPageTool, deleteWikiPageHandler, deleteWikiPageSchema } from './tools/wiki/delete-wiki-page.js';
+import { getWikiPageTreeTool, getWikiPageTreeHandler, getWikiPageTreeSchema } from './tools/wiki/get-wiki-page-tree.js';
 import { getWikiPageCommentListTool, getWikiPageCommentListHandler, getWikiPageCommentListSchema } from './tools/wiki/get-wiki-comment-list.js';
 import { getWikiPageCommentTool, getWikiPageCommentHandler, getWikiPageCommentSchema } from './tools/wiki/get-wiki-comment.js';
 import { createWikiPageCommentTool, createWikiPageCommentHandler, createWikiPageCommentSchema } from './tools/wiki/create-wiki-comment.js';
@@ -96,9 +104,12 @@ export const toolDefinitions: ToolDefinition[] = [
   { tool: getTaskTool, handler: getTaskHandler, schema: getTaskSchema },
   { tool: createTaskTool, handler: createTaskHandler, schema: createTaskSchema },
   { tool: updateTaskTool, handler: updateTaskHandler, schema: updateTaskSchema },
+  { tool: updateTaskBodyTool, handler: updateTaskBodyHandler, schema: updateTaskBodySchema },
   { tool: createTaskCommentTool, handler: createTaskCommentHandler, schema: createTaskCommentSchema },
   { tool: getTaskCommentListTool, handler: getTaskCommentListHandler, schema: getTaskCommentListSchema },
   { tool: updateTaskCommentTool, handler: updateTaskCommentHandler, schema: updateTaskCommentSchema },
+  { tool: getTaskCommentTool, handler: getTaskCommentHandler, schema: getTaskCommentSchema },
+  { tool: deleteTaskCommentTool, handler: deleteTaskCommentHandler, schema: deleteTaskCommentSchema },
   { tool: getMilestoneListTool, handler: getMilestoneListHandler, schema: getMilestoneListSchema },
   { tool: getTagListTool, handler: getTagListHandler, schema: getTagListSchema },
   { tool: getTagTool, handler: getTagHandler, schema: getTagSchema },
@@ -117,6 +128,7 @@ export const toolDefinitions: ToolDefinition[] = [
   { tool: getAttachmentMetadataTool, handler: getAttachmentMetadataHandler, schema: getAttachmentMetadataSchema },
   { tool: downloadAttachmentTool, handler: downloadAttachmentHandler, schema: downloadAttachmentSchema },
   { tool: deleteAttachmentTool, handler: deleteAttachmentHandler, schema: deleteAttachmentSchema },
+  { tool: downloadAllAttachmentsTool, handler: downloadAllAttachmentsHandler, schema: downloadAllAttachmentsSchema },
 
   // Drive tools
   { tool: getDriveListTool, handler: getDriveListHandler, schema: getDriveListSchema },
@@ -137,6 +149,10 @@ export const toolDefinitions: ToolDefinition[] = [
   { tool: getWikiPageTool, handler: getWikiPageHandler, schema: getWikiPageSchema },
   { tool: createWikiPageTool, handler: createWikiPageHandler, schema: createWikiPageSchema },
   { tool: updateWikiPageTool, handler: updateWikiPageHandler, schema: updateWikiPageSchema },
+  { tool: updateWikiPageBodyTool, handler: updateWikiPageBodyHandler, schema: updateWikiPageBodySchema },
+  { tool: moveWikiPageTool, handler: moveWikiPageHandler, schema: moveWikiPageSchema },
+  { tool: deleteWikiPageTool, handler: deleteWikiPageHandler, schema: deleteWikiPageSchema },
+  { tool: getWikiPageTreeTool, handler: getWikiPageTreeHandler, schema: getWikiPageTreeSchema },
   { tool: getWikiPageCommentListTool, handler: getWikiPageCommentListHandler, schema: getWikiPageCommentListSchema },
   { tool: getWikiPageCommentTool, handler: getWikiPageCommentHandler, schema: getWikiPageCommentSchema },
   { tool: createWikiPageCommentTool, handler: createWikiPageCommentHandler, schema: createWikiPageCommentSchema },
