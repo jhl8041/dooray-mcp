@@ -11,6 +11,54 @@ import { logger } from '../utils/logger.js';
 
 const DEFAULT_BASE_URL = 'https://api.dooray.com';
 
+const MAX_RETRIES = 3;
+const BASE_RETRY_DELAY_MS = 500;
+const MAX_RETRY_DELAY_MS = 10000;
+
+/**
+ * Decide whether a failed request should be retried and how long to wait
+ * - 429: retried for every method, the server rejected the request before processing it
+ * - 502, 503, 504: retried for GET only, a write may already have been applied
+ * Returns null when the request should not be retried
+ */
+export function getRetryDelay(error: {
+  config?: { method?: string; __retryCount?: number };
+  response?: { status: number; headers?: Record<string, unknown> };
+}): number | null {
+  const { config, response } = error;
+  if (!config || !response) return null;
+
+  const retryCount = config.__retryCount || 0;
+  if (retryCount >= MAX_RETRIES) return null;
+
+  const isGet = (config.method || 'get').toLowerCase() === 'get';
+  const retryable = response.status === 429 || (isGet && [502, 503, 504].includes(response.status));
+  if (!retryable) return null;
+
+  const retryAfterSeconds = Number(response.headers?.['retry-after']);
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
+    return Math.min(retryAfterSeconds * 1000, MAX_RETRY_DELAY_MS);
+  }
+  return Math.min(BASE_RETRY_DELAY_MS * 2 ** retryCount, MAX_RETRY_DELAY_MS);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Build the download result from a binary response
+ */
+function toDownloadResult(response: AxiosResponse) {
+  const contentDisposition = response.headers['content-disposition'];
+  return {
+    data: response.data as ArrayBuffer,
+    contentType: String(response.headers['content-type'] || 'application/octet-stream'),
+    contentDisposition: contentDisposition ? String(contentDisposition) : undefined,
+    contentLength: parseInt(String(response.headers['content-length'] || '0'), 10),
+  };
+}
+
 /**
  * Dooray API Client
  * Provides authenticated HTTP client for Dooray API calls
@@ -54,7 +102,18 @@ export class DoorayClient {
         logger.debug(`Response: ${response.status} ${response.config.url}`);
         return response;
       },
-      (error) => {
+      async (error) => {
+        const retryDelay = getRetryDelay(error);
+        if (retryDelay !== null) {
+          error.config.__retryCount = (error.config.__retryCount || 0) + 1;
+          logger.warn(
+            `Retrying ${error.config.method?.toUpperCase()} ${error.config.url} after ${retryDelay}ms ` +
+            `(status ${error.response.status}, attempt ${error.config.__retryCount}/${MAX_RETRIES})`
+          );
+          await sleep(retryDelay);
+          return this.client.request(error.config);
+        }
+
         if (error.response) {
           const { status, data, config } = error.response;
           logger.error(`API Error: ${status} ${config?.url}`, data);
@@ -265,12 +324,7 @@ export class DoorayClient {
     // If we got a direct success response (not 307), return it
     if (initialResponse.status !== 307) {
       logger.debug('File download completed without redirect');
-      return {
-        data: initialResponse.data as ArrayBuffer,
-        contentType: initialResponse.headers['content-type'] || 'application/octet-stream',
-        contentDisposition: initialResponse.headers['content-disposition'],
-        contentLength: parseInt(initialResponse.headers['content-length'] || '0', 10),
-      };
+      return toDownloadResult(initialResponse);
     }
 
     // Step 2: Extract Location header and make second request
@@ -292,12 +346,7 @@ export class DoorayClient {
       responseType: 'arraybuffer',
     });
 
-    return {
-      data: response.data as ArrayBuffer,
-      contentType: response.headers['content-type'] || 'application/octet-stream',
-      contentDisposition: response.headers['content-disposition'],
-      contentLength: parseInt(response.headers['content-length'] || '0', 10),
-    };
+    return toDownloadResult(response);
   }
 
   /**

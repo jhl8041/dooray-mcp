@@ -16,8 +16,8 @@ export interface MemberInput {
  * MCP Format: { id: "123", type: "member" }
  * Dooray API Format:
  *   - member: { type: "member", member: { organizationMemberId: "123" } }
- *   - email: { type: "email", member: { emailAddress: "user@example.com" } }
- *   - group: { type: "group", organizationGroup: { id: "123" } }
+ *   - email: { type: "emailUser", emailUser: { emailAddress: "user@example.com" } }
+ *   - group: { type: "group", group: { projectMemberGroupId: "123" } }
  */
 export function transformMembers(members?: MemberInput[]): DoorayApiMember[] | undefined {
   if (!members || members.length === 0) return undefined;
@@ -33,16 +33,16 @@ export function transformMembers(members?: MemberInput[]): DoorayApiMember[] | u
         };
       case 'email':
         return {
-          type: 'email',
-          member: {
+          type: 'emailUser',
+          emailUser: {
             emailAddress: m.id,
           },
         };
       case 'group':
         return {
           type: 'group',
-            group: {
-              projectMemberGroupId: m.id,
+          group: {
+            projectMemberGroupId: m.id,
           },
         };
       default:

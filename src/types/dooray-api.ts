@@ -28,13 +28,16 @@ export interface Member {
  * Dooray API format for members (used in API requests)
  */
 export interface DoorayApiMember {
-  type: 'member' | 'email' | 'group';
+  type: 'member' | 'emailUser' | 'group';
   member?: {
-    organizationMemberId?: string;
-    emailAddress?: string;
+    organizationMemberId: string;
   };
-  organizationGroup?: {
-    id: string;
+  emailUser?: {
+    emailAddress: string;
+    name?: string;
+  };
+  group?: {
+    projectMemberGroupId: string;
   };
 }
 

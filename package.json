@@ -11,7 +11,9 @@
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "prepare": "npm run build",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "node --import tsx --test test/*.test.ts",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "dooray-mcp",
@@ -38,15 +40,16 @@
   },
   "homepage": "https://github.com/jhl8041/dooray-mcp#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4",
-    "axios": "^1.7.9",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "axios": "^1.20.0",
     "dotenv": "^16.4.7",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "zod-to-json-schema": "^3.25.2"
   },
   "engines": {
     "node": ">=18.0.0"
