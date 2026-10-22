@@ -12,7 +12,8 @@
     "dev": "tsx src/index.ts",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "test": "node --import tsx --test test/*.test.ts"
+    "test": "node --import tsx --test test/*.test.ts",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "dooray-mcp",
