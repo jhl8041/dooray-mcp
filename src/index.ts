@@ -13,211 +13,20 @@ import {
   GetPromptRequestSchema,
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
+  type CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
 import * as dotenv from 'dotenv';
+import { ZodError } from 'zod';
 import { initializeClient } from './api/client.js';
 import { logger } from './utils/logger.js';
 
-// Import all tools
-import { getMyMemberInfoTool, getMyMemberInfoHandler, getMyMemberInfoSchema } from './tools/common/get-my-member-info.js';
+import { tools, toolRegistry } from './tool-registry.js';
 
-import { getProjectListTool, getProjectListHandler, getProjectListSchema } from './tools/projects/get-project-list.js';
-import { getProjectTool, getProjectHandler, getProjectSchema } from './tools/projects/get-project.js';
-import { getTaskListTool, getTaskListHandler, getTaskListSchema } from './tools/projects/get-task-list.js';
-import { getTaskTool, getTaskHandler, getTaskSchema } from './tools/projects/get-task.js';
-import { createTaskTool, createTaskHandler, createTaskSchema } from './tools/projects/create-task.js';
-import { updateTaskTool, updateTaskHandler, updateTaskSchema } from './tools/projects/update-task.js';
-import { createTaskCommentTool, createTaskCommentHandler, createTaskCommentSchema } from './tools/projects/create-task-comment.js';
-import { getTaskCommentListTool, getTaskCommentListHandler, getTaskCommentListSchema } from './tools/projects/get-task-comment-list.js';
-import { updateTaskCommentTool, updateTaskCommentHandler, updateTaskCommentSchema } from './tools/projects/update-task-comment.js';
-import { getMilestoneListTool, getMilestoneListHandler, getMilestoneListSchema } from './tools/projects/get-milestone-list.js';
-import { getTagListTool, getTagListHandler, getTagListSchema } from './tools/projects/get-tag-list.js';
-import { getTagTool, getTagHandler, getTagSchema } from './tools/projects/get-tag.js';
-import { createTagTool, createTagHandler, createTagSchema } from './tools/projects/create-tag.js';
-import { updateTagGroupTool, updateTagGroupHandler, updateTagGroupSchema } from './tools/projects/update-tag-group.js';
-import { getProjectTemplateListTool, getProjectTemplateListHandler, getProjectTemplateListSchema } from './tools/projects/get-project-template-list.js';
-import { getProjectTemplateTool, getProjectTemplateHandler, getProjectTemplateSchema } from './tools/projects/get-project-template.js';
-import { createProjectTemplateTool, createProjectTemplateHandler, createProjectTemplateSchema } from './tools/projects/create-project-template.js';
-import { updateProjectTemplateTool, updateProjectTemplateHandler, updateProjectTemplateSchema } from './tools/projects/update-project-template.js';
-import { deleteProjectTemplateTool, deleteProjectTemplateHandler, deleteProjectTemplateSchema } from './tools/projects/delete-project-template.js';
-import { getProjectMemberListTool, getProjectMemberListHandler, getProjectMemberListSchema } from './tools/projects/get-project-member-list.js';
-import { getProjectMemberGroupListTool, getProjectMemberGroupListHandler, getProjectMemberGroupListSchema } from './tools/projects/get-project-member-group-list.js';
-import { getProjectWorkflowListTool, getProjectWorkflowListHandler, getProjectWorkflowListSchema } from './tools/projects/get-project-workflow-list.js';
-import { uploadAttachmentTool, uploadAttachmentHandler, uploadAttachmentSchema } from './tools/projects/upload-attachment.js';
-import { getAttachmentListTool, getAttachmentListHandler, getAttachmentListSchema } from './tools/projects/get-attachment-list.js';
-import { getAttachmentMetadataTool, getAttachmentMetadataHandler, getAttachmentMetadataSchema } from './tools/projects/get-attachment-metadata.js';
-import { downloadAttachmentTool, downloadAttachmentHandler, downloadAttachmentSchema } from './tools/projects/download-attachment.js';
-import { deleteAttachmentTool, deleteAttachmentHandler, deleteAttachmentSchema } from './tools/projects/delete-attachment.js';
-
-// Drive tools
-import { getDriveListTool, getDriveListHandler, getDriveListSchema } from './tools/drive/get-drive-list.js';
-import { getDriveFileListTool, getDriveFileListHandler, getDriveFileListSchema } from './tools/drive/get-drive-file-list.js';
-import { getDriveFileMetaTool, getDriveFileMetaHandler, getDriveFileMetaSchema } from './tools/drive/get-drive-file-meta.js';
-import { createDriveFolderTool, createDriveFolderHandler, createDriveFolderSchema } from './tools/drive/create-drive-folder.js';
-import { renameDriveFileTool, renameDriveFileHandler, renameDriveFileSchema } from './tools/drive/rename-drive-file.js';
-import { moveDriveFileTool, moveDriveFileHandler, moveDriveFileSchema } from './tools/drive/move-drive-file.js';
-import { copyDriveFileTool, copyDriveFileHandler, copyDriveFileSchema } from './tools/drive/copy-drive-file.js';
-import { deleteDriveFileTool, deleteDriveFileHandler, deleteDriveFileSchema } from './tools/drive/delete-drive-file.js';
-import { uploadDriveFileTool, uploadDriveFileHandler, uploadDriveFileSchema } from './tools/drive/upload-drive-file.js';
-import { downloadDriveFileTool, downloadDriveFileHandler, downloadDriveFileSchema } from './tools/drive/download-drive-file.js';
-import { updateDriveFileTool, updateDriveFileHandler, updateDriveFileSchema } from './tools/drive/update-drive-file.js';
-
-// Wiki tools
-import { getWikiListTool, getWikiListHandler, getWikiListSchema } from './tools/wiki/get-wiki-list.js';
-import { getWikiPageListTool, getWikiPageListHandler, getWikiPageListSchema } from './tools/wiki/get-wiki-page-list.js';
-import { getWikiPageTool, getWikiPageHandler, getWikiPageSchema } from './tools/wiki/get-wiki-page.js';
-import { createWikiPageTool, createWikiPageHandler, createWikiPageSchema } from './tools/wiki/create-wiki-page.js';
-import { updateWikiPageTool, updateWikiPageHandler, updateWikiPageSchema } from './tools/wiki/update-wiki-page.js';
-import { getWikiPageCommentListTool, getWikiPageCommentListHandler, getWikiPageCommentListSchema } from './tools/wiki/get-wiki-comment-list.js';
-import { getWikiPageCommentTool, getWikiPageCommentHandler, getWikiPageCommentSchema } from './tools/wiki/get-wiki-comment.js';
-import { createWikiPageCommentTool, createWikiPageCommentHandler, createWikiPageCommentSchema } from './tools/wiki/create-wiki-comment.js';
-import { updateWikiPageCommentTool, updateWikiPageCommentHandler, updateWikiPageCommentSchema } from './tools/wiki/update-wiki-comment.js';
-import { deleteWikiPageCommentTool, deleteWikiPageCommentHandler, deleteWikiPageCommentSchema } from './tools/wiki/delete-wiki-comment.js';
-
-// Wiki file tools
-import { uploadWikiPageFileTool, uploadWikiPageFileHandler, uploadWikiPageFileSchema } from './tools/wiki/upload-wiki-page-file.js';
-import { downloadWikiPageFileTool, downloadWikiPageFileHandler, downloadWikiPageFileSchema } from './tools/wiki/download-wiki-page-file.js';
-import { deleteWikiPageFileTool, deleteWikiPageFileHandler, deleteWikiPageFileSchema } from './tools/wiki/delete-wiki-page-file.js';
-import { uploadWikiFileTool, uploadWikiFileHandler, uploadWikiFileSchema } from './tools/wiki/upload-wiki-file.js';
-import { downloadWikiAttachFileTool, downloadWikiAttachFileHandler, downloadWikiAttachFileSchema } from './tools/wiki/download-wiki-attach-file.js';
+// package.json sits next to dist/ in the published package
+const packageJson = require('../package.json') as { version: string };
 
 // Load environment variables
 dotenv.config();
-
-/**
- * Tool registry mapping tool names to their handlers and schemas
- */
-const toolRegistry = {
-  // Common tools
-  'get-my-member-info': { handler: getMyMemberInfoHandler, schema: getMyMemberInfoSchema },
-
-  // Projects tools
-  'get-project-list': { handler: getProjectListHandler, schema: getProjectListSchema },
-  'get-project': { handler: getProjectHandler, schema: getProjectSchema },
-  'get-task-list': { handler: getTaskListHandler, schema: getTaskListSchema },
-  'get-task': { handler: getTaskHandler, schema: getTaskSchema },
-  'create-task': { handler: createTaskHandler, schema: createTaskSchema },
-  'update-task': { handler: updateTaskHandler, schema: updateTaskSchema },
-  'create-task-comment': { handler: createTaskCommentHandler, schema: createTaskCommentSchema },
-  'get-task-comment-list': { handler: getTaskCommentListHandler, schema: getTaskCommentListSchema },
-  'update-task-comment': { handler: updateTaskCommentHandler, schema: updateTaskCommentSchema },
-  'get-milestone-list': { handler: getMilestoneListHandler, schema: getMilestoneListSchema },
-  'get-tag-list': { handler: getTagListHandler, schema: getTagListSchema },
-  'get-tag': { handler: getTagHandler, schema: getTagSchema },
-  'create-tag': { handler: createTagHandler, schema: createTagSchema },
-  'update-tag-group': { handler: updateTagGroupHandler, schema: updateTagGroupSchema },
-  'get-project-template-list': { handler: getProjectTemplateListHandler, schema: getProjectTemplateListSchema },
-  'get-project-template': { handler: getProjectTemplateHandler, schema: getProjectTemplateSchema },
-  'create-project-template': { handler: createProjectTemplateHandler, schema: createProjectTemplateSchema },
-  'update-project-template': { handler: updateProjectTemplateHandler, schema: updateProjectTemplateSchema },
-  'delete-project-template': { handler: deleteProjectTemplateHandler, schema: deleteProjectTemplateSchema },
-  'get-project-member-list': { handler: getProjectMemberListHandler, schema: getProjectMemberListSchema },
-  'get-project-member-group-list': { handler: getProjectMemberGroupListHandler, schema: getProjectMemberGroupListSchema },
-  'get-project-workflow-list': { handler: getProjectWorkflowListHandler, schema: getProjectWorkflowListSchema },
-  'upload-attachment': { handler: uploadAttachmentHandler, schema: uploadAttachmentSchema },
-  'get-attachment-list': { handler: getAttachmentListHandler, schema: getAttachmentListSchema },
-  'get-attachment-metadata': { handler: getAttachmentMetadataHandler, schema: getAttachmentMetadataSchema },
-  'download-attachment': { handler: downloadAttachmentHandler, schema: downloadAttachmentSchema },
-  'delete-attachment': { handler: deleteAttachmentHandler, schema: deleteAttachmentSchema },
-
-  // Drive tools
-  'get-drive-list': { handler: getDriveListHandler, schema: getDriveListSchema },
-  'get-drive-file-list': { handler: getDriveFileListHandler, schema: getDriveFileListSchema },
-  'get-drive-file-meta': { handler: getDriveFileMetaHandler, schema: getDriveFileMetaSchema },
-  'create-drive-folder': { handler: createDriveFolderHandler, schema: createDriveFolderSchema },
-  'rename-drive-file': { handler: renameDriveFileHandler, schema: renameDriveFileSchema },
-  'move-drive-file': { handler: moveDriveFileHandler, schema: moveDriveFileSchema },
-  'copy-drive-file': { handler: copyDriveFileHandler, schema: copyDriveFileSchema },
-  'delete-drive-file': { handler: deleteDriveFileHandler, schema: deleteDriveFileSchema },
-  'upload-drive-file': { handler: uploadDriveFileHandler, schema: uploadDriveFileSchema },
-  'download-drive-file': { handler: downloadDriveFileHandler, schema: downloadDriveFileSchema },
-  'update-drive-file': { handler: updateDriveFileHandler, schema: updateDriveFileSchema },
-
-  // Wiki tools
-  'get-wiki-list': { handler: getWikiListHandler, schema: getWikiListSchema },
-  'get-wiki-page-list': { handler: getWikiPageListHandler, schema: getWikiPageListSchema },
-  'get-wiki-page': { handler: getWikiPageHandler, schema: getWikiPageSchema },
-  'create-wiki-page': { handler: createWikiPageHandler, schema: createWikiPageSchema },
-  'update-wiki-page': { handler: updateWikiPageHandler, schema: updateWikiPageSchema },
-  'get-wiki-page-comment-list': { handler: getWikiPageCommentListHandler, schema: getWikiPageCommentListSchema },
-  'get-wiki-page-comment': { handler: getWikiPageCommentHandler, schema: getWikiPageCommentSchema },
-  'create-wiki-page-comment': { handler: createWikiPageCommentHandler, schema: createWikiPageCommentSchema },
-  'update-wiki-page-comment': { handler: updateWikiPageCommentHandler, schema: updateWikiPageCommentSchema },
-  'delete-wiki-page-comment': { handler: deleteWikiPageCommentHandler, schema: deleteWikiPageCommentSchema },
-
-  // Wiki file tools
-  'upload-wiki-page-file': { handler: uploadWikiPageFileHandler, schema: uploadWikiPageFileSchema },
-  'download-wiki-page-file': { handler: downloadWikiPageFileHandler, schema: downloadWikiPageFileSchema },
-  'delete-wiki-page-file': { handler: deleteWikiPageFileHandler, schema: deleteWikiPageFileSchema },
-  'upload-wiki-file': { handler: uploadWikiFileHandler, schema: uploadWikiFileSchema },
-  'download-wiki-attach-file': { handler: downloadWikiAttachFileHandler, schema: downloadWikiAttachFileSchema },
-};
-
-/**
- * List of all available tools
- */
-const tools = [
-  getMyMemberInfoTool,
-  getProjectListTool,
-  getProjectTool,
-  getTaskListTool,
-  getTaskTool,
-  createTaskTool,
-  updateTaskTool,
-  createTaskCommentTool,
-  getTaskCommentListTool,
-  updateTaskCommentTool,
-  getMilestoneListTool,
-  getTagListTool,
-  getTagTool,
-  createTagTool,
-  updateTagGroupTool,
-  getProjectTemplateListTool,
-  getProjectTemplateTool,
-  createProjectTemplateTool,
-  updateProjectTemplateTool,
-  deleteProjectTemplateTool,
-  getProjectMemberListTool,
-  getProjectMemberGroupListTool,
-  getProjectWorkflowListTool,
-  uploadAttachmentTool,
-  getAttachmentListTool,
-  getAttachmentMetadataTool,
-  downloadAttachmentTool,
-  deleteAttachmentTool,
-
-  // Drive tools
-  getDriveListTool,
-  getDriveFileListTool,
-  getDriveFileMetaTool,
-  createDriveFolderTool,
-  renameDriveFileTool,
-  moveDriveFileTool,
-  copyDriveFileTool,
-  deleteDriveFileTool,
-  uploadDriveFileTool,
-  downloadDriveFileTool,
-  updateDriveFileTool,
-
-  // Wiki tools
-  getWikiListTool,
-  getWikiPageListTool,
-  getWikiPageTool,
-  createWikiPageTool,
-  updateWikiPageTool,
-  getWikiPageCommentListTool,
-  getWikiPageCommentTool,
-  createWikiPageCommentTool,
-  updateWikiPageCommentTool,
-  deleteWikiPageCommentTool,
-
-  // Wiki file tools
-  uploadWikiPageFileTool,
-  downloadWikiPageFileTool,
-  deleteWikiPageFileTool,
-  uploadWikiFileTool,
-  downloadWikiAttachFileTool,
-];
 
 /**
  * Main server initialization
@@ -248,7 +57,7 @@ async function main() {
   const server = new Server(
     {
       name: 'dooray-mcp',
-      version: '0.1.0',
+      version: packageJson.version,
     },
     {
       capabilities: {
@@ -662,7 +471,7 @@ When creating or updating a task:
     logger.info(`Tool called: ${name}`);
     logger.debug(`Tool arguments:`, args);
 
-    const tool = toolRegistry[name as keyof typeof toolRegistry];
+    const tool = toolRegistry.get(name);
     if (!tool) {
       logger.error(`Unknown tool: ${name}`);
       return {
@@ -681,16 +490,15 @@ When creating or updating a task:
       const validatedArgs = tool.schema.parse(args || {});
 
       // Call the tool handler
-      const result = await (tool.handler as any)(validatedArgs);
+      const result = await tool.handler(validatedArgs);
       logger.debug(`Tool ${name} completed successfully`);
-      return result;
+      return result as CallToolResult;
     } catch (error) {
       logger.error(`Tool ${name} failed:`, error);
 
       // Handle Zod validation errors
-      if (error && typeof error === 'object' && 'errors' in error) {
-        const zodError = error as { errors: Array<{ path: string[]; message: string }> };
-        const errorMessages = zodError.errors
+      if (error instanceof ZodError) {
+        const errorMessages = error.issues
           .map(e => `${e.path.join('.')}: ${e.message}`)
           .join(', ');
         return {

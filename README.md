@@ -124,7 +124,11 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 npm run build   # 빌드
 npm run dev     # 개발 모드
 npm run watch   # Watch 모드
+npm test        # 테스트 (tool schema 정합성, 재시도 정책)
 ```
+
+새 tool 은 `src/tools/<도메인>/` 에 파일을 만들고 `src/tool-registry.ts` 의 `toolDefinitions` 에 한 줄 추가합니다.
+tool annotation(`readOnlyHint`, `destructiveHint`)은 tool 이름 접두어(`get-`, `delete-`, `update-` 등)로 정해집니다.
 
 ## Prompts (프롬프트)
 
