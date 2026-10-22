@@ -1,41 +1,42 @@
 # Dooray MCP Server
 
-[![MCP Badge](https://lobehub.com/badge/mcp-full/jhl8041-dooray-mcp?theme=light)](https://lobehub.com/mcp/jhl8041-dooray-mcp)
-
-MCP server for [Dooray!](https://dooray.com) - enabling AI assistants to interact with Dooray projects, tasks, wikis, and more.
+[Dooray!](https://dooray.com) 의 프로젝트, 업무, 위키, 드라이브, 캘린더를 AI assistant 에서 다루게 하는 MCP 서버.
 
 ## 설치
 
-### NPM (권장)
+Node.js 18 이상이 필요합니다. MCP 등록 시 `npx` 로 실행되므로 별도 설치 없이 사용 가능합니다.
+
+전역 설치가 필요하면:
+
 ```bash
 npm install -g @jhl8041/dooray-mcp
 ```
 
-### Smithery
-[![smithery badge](https://smithery.ai/badge/@jhl8041/dooray-mcp)](https://smithery.ai/server/@jhl8041/dooray-mcp)
-
-```bash
-npx -y @smithery/cli install @jhl8041/dooray-mcp --client claude
-```
-
 ## 설정
 
-### 1. API 토큰 발급 (필수)
-두레이 개인설정 > API > 개인 인증 토큰 메뉴에서 생성할 수 있습니다. [가이드](https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2939987647631384419#%EA%B0%9C%EC%9D%B8-API-%EC%9D%B8%EC%A6%9D-%ED%86%A0%ED%81%B0-%EB%B0%9C%EA%B8%89-%EA%B3%BC%EC%A0%95)
+### 1. API 토큰 발급
 
-### 2. 환경변수 등록 (필수)
-```bash
-export DOORAY_API_TOKEN=<발급 받은 API 토큰>
-```
+두레이 개인설정 > API > 개인 인증 토큰 메뉴에서 생성합니다. [가이드](https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2939987647631384419#%EA%B0%9C%EC%9D%B8-API-%EC%9D%B8%EC%A6%9D-%ED%86%A0%ED%81%B0-%EB%B0%9C%EA%B8%89-%EA%B3%BC%EC%A0%95)
+
+### 2. 환경변수
+
+| 변수 | 필수 | 설명 |
+|------|------|------|
+| `DOORAY_API_TOKEN` | O | 발급받은 API 토큰 |
+| `DOORAY_API_BASE_URL` | | API 주소 (기본값 `https://api.dooray.com`) |
+| `LOG_LEVEL` | | `ERROR`, `WARN`, `INFO`, `DEBUG` (기본값 `INFO`). 로그는 stderr 로 출력됩니다 |
+
+실행 위치에 `.env` 파일이 있으면 그 값도 적용됩니다.
 
 ## MCP 등록
 
-### 1. Claude Code 등록
+### Claude Code
+
 ```bash
-claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
+claude mcp add -s user dooray-mcp -e DOORAY_API_TOKEN=<발급받은 토큰> -- npx -y @jhl8041/dooray-mcp@latest
 ```
 
-### 2. Claude Desktop 설정
+### Claude Desktop
 
 설정 파일 위치: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
@@ -43,8 +44,9 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 {
   "mcpServers": {
     "dooray": {
-      "command": "npx @jhl8041/dooray-mcp@latest",
-      "env": { "DOORAY_API_TOKEN": "발급받은_토큰" }
+      "command": "npx",
+      "args": ["-y", "@jhl8041/dooray-mcp@latest"],
+      "env": { "DOORAY_API_TOKEN": "<발급받은 토큰>" }
     }
   }
 }
@@ -135,58 +137,3 @@ claude mcp add -s user dooray-mcp npx @jhl8041/dooray-mcp@latest
 - `download-wiki-page-file` - 위키 페이지 첨부파일 다운로드 (fileId 사용, savePath 옵션으로 로컬 저장 지원)
 - `download-wiki-attach-file` - 위키 첨부파일 다운로드 (attachFileId 사용, savePath 옵션으로 로컬 저장 지원)
 - `delete-wiki-page-file` - 위키 페이지 첨부파일 삭제
-
-## 개발
-
-```bash
-npm run build   # 빌드
-npm run dev     # 개발 모드
-npm run watch   # Watch 모드
-npm test        # 테스트 (tool schema 정합성, 재시도 정책)
-```
-
-새 tool 은 `src/tools/<도메인>/` 에 파일을 만들고 `src/tool-registry.ts` 의 `toolDefinitions` 에 한 줄 추가합니다.
-tool annotation(`readOnlyHint`, `destructiveHint`)은 tool 이름 접두어(`get-`, `delete-`, `update-` 등)로 정해집니다.
-
-### 테스트 규칙
-
-새 tool 을 추가하거나 기존 tool 의 요청 형상을 바꾸면 `test/` 에 테스트를 함께 추가합니다.
-
-- **요청 형상**: tool handler 를 호출해 API 로 나가는 method, path, query, body 를 확인합니다. `test/helpers/capture-client.ts` 는 요청을 실제로 보내지 않고 기록하며, 요청별 응답 지정도 가능합니다
-- **입력 변환**: 멤버, 본문, 부분 변경처럼 입력을 API 형식으로 바꾸는 로직이 있으면 그 변환을 테스트합니다
-- **실패 분기**: 쓰기 전에 중단하는 분기(대상 없음, 옵션 충돌 등)가 있으면 그 분기에서 쓰기 요청이 나가지 않는지 확인합니다
-- PR 전에 `npm run build` 와 `npm test` 를 모두 통과시킵니다. `npm publish` 는 `prepublishOnly` 로 두 명령이 통과해야 진행됩니다
-
-`test/tool-test-coverage.test.ts` 가 등록된 모든 tool 의 handler 가 테스트에서 쓰이는지 검사합니다.
-테스트가 없는 새 tool 이 있으면 `npm test` 가 실패합니다. 규칙 이전부터 있던 tool 은 `LEGACY_TOOLS_WITHOUT_TESTS` 로 제외되어 있고, 새 tool 은 이 목록에 넣지 말고 테스트를 추가합니다.
-
-## Prompts (프롬프트)
-
-사전 정의된 프롬프트 템플릿을 제공합니다:
-
-| Prompt | 설명 |
-|--------|------|
-| `create-task-with-template` | 구조화된 템플릿으로 새 업무 생성 (bug, feature, improvement, general) |
-| `weekly-task-summary` | 주간 업무 요약 생성 |
-| `project-status-report` | 프로젝트 상태 리포트 생성 |
-| `task-review-checklist` | 업무 검토 체크리스트 생성 |
-
-## Resources (리소스)
-
-컨텍스트 데이터를 제공하는 리소스:
-
-| URI | 설명 |
-|-----|------|
-| `dooray://api/info` | Dooray API 정보 및 사용 가능한 도구 목록 |
-| `dooray://workflows/reference` | 워크플로우 상태 참조 가이드 (backlog, registered, working, closed) |
-| `dooray://priority/reference` | 업무 우선순위 참조 가이드 |
-
-## 라이선스
-
-MIT
-
-## 참고
-
-- [Dooray](https://dooray.com)
-- [Model Context Protocol](https://modelcontextprotocol.io)
-- [Dooray API 문서](https://dooray.com/docs/api)

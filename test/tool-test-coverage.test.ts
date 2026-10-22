@@ -5,7 +5,7 @@ import path from 'node:path';
 import { toolDefinitions } from '../src/tool-registry.js';
 
 /**
- * Tools that existed before the test rule (README "테스트 규칙").
+ * Tools that existed before the test rule (CONTRIBUTING.md "테스트 규칙").
  * Do not add to this list. New tools must come with a test that calls their handler.
  */
 const LEGACY_TOOLS_WITHOUT_TESTS = new Set([
