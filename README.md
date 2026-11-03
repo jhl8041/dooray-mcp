@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jhl8041-dooray-mcp-badge.png)](https://mseep.ai/app/jhl8041-dooray-mcp)
+
 # Dooray MCP Server
 
 [Dooray!](https://dooray.com) 의 프로젝트, 업무, 위키, 드라이브, 캘린더를 AI assistant 에서 다루게 하는 MCP 서버.
