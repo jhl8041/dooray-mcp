@@ -5,6 +5,7 @@
 
 import { z } from 'zod';
 import * as calendarApi from '../../api/calendar.js';
+import * as commonApi from '../../api/common.js';
 import { formatError } from '../../utils/errors.js';
 import { eventFieldsSchema, eventFieldsJsonSchema, toCalendarEventBody } from './event-fields.js';
 
@@ -18,7 +19,14 @@ export type CreateCalendarEventInput = z.infer<typeof createCalendarEventSchema>
 export async function createCalendarEventHandler(args: CreateCalendarEventInput) {
   try {
     const { calendarId, ...fields } = args;
-    const result = await calendarApi.createCalendarEvent(calendarId, toCalendarEventBody(fields));
+    const body = toCalendarEventBody(fields);
+    // Dooray returns 500 SERVER_GENERAL_ERROR when users.to or body is missing
+    if (!body.users?.to) {
+      const me = await commonApi.getMyMemberInfo();
+      body.users = { ...body.users, to: [{ type: 'member', member: { organizationMemberId: me.id } }] };
+    }
+    body.body ??= { mimeType: 'text/x-markdown', content: '' };
+    const result = await calendarApi.createCalendarEvent(calendarId, body);
 
     return {
       content: [
@@ -54,6 +62,7 @@ Get calendarId from get-calendar-list (default=true is the user's own calendar).
 
 **Attendees**: {id, type} where type is "member" (organizationMemberId) or "email" (email address).
 Use get-my-member-info, get-project-member-list, get-member-list to find member IDs.
+Without attendees, the authenticated user is added as the attendee (the API rejects an event without one).
 
 **Examples**:
 - Meeting: {"calendarId": "123", "subject": "주간 회의", "startedAt": "2026-10-22T10:00:00+09:00", "endedAt": "2026-10-22T11:00:00+09:00", "location": "4-5 회의실", "attendees": [{"id": "456", "type": "member"}]}

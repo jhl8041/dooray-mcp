@@ -65,8 +65,8 @@ test('get-calendar-event reads one event', async () => {
   assert.deepEqual(requests.map(r => `${r.method} ${r.url}`), ['GET /calendar/v1/calendars/c1/events/e1']);
 });
 
-test('create-calendar-event posts the event body without calendarId', async () => {
-  const requests = createCaptureClient({ id: 'e1' });
+test('create-calendar-event adds me as attendee and an empty body when missing', async () => {
+  const requests = createCaptureClient(request => (request.method === 'GET' ? { id: 'me1' } : { id: 'e1' }));
   const result = await createCalendarEventHandler({
     calendarId: 'c1',
     subject: '휴가',
@@ -76,12 +76,43 @@ test('create-calendar-event posts the event body without calendarId', async () =
   });
 
   assert.deepEqual(parseText(result), { id: 'e1' });
-  assert.deepEqual(requests, [{
-    method: 'POST',
-    url: '/calendar/v1/calendars/c1/events',
-    params: undefined,
-    data: { subject: '휴가', startedAt: '2026-10-22+09:00', endedAt: '2026-10-23+09:00', wholeDayFlag: true },
-  }]);
+  assert.deepEqual(requests, [
+    { method: 'GET', url: '/common/v1/members/me', params: undefined, data: undefined },
+    {
+      method: 'POST',
+      url: '/calendar/v1/calendars/c1/events',
+      params: undefined,
+      data: {
+        users: { to: [{ type: 'member', member: { organizationMemberId: 'me1' } }] },
+        subject: '휴가',
+        body: { mimeType: 'text/x-markdown', content: '' },
+        startedAt: '2026-10-22+09:00',
+        endedAt: '2026-10-23+09:00',
+        wholeDayFlag: true,
+      },
+    },
+  ]);
+});
+
+test('create-calendar-event keeps given attendees and body', async () => {
+  const requests = createCaptureClient({ id: 'e1' });
+  await createCalendarEventHandler({
+    calendarId: 'c1',
+    subject: '회의',
+    startedAt: '2026-10-22T10:00:00+09:00',
+    endedAt: '2026-10-22T11:00:00+09:00',
+    attendees: [{ id: 'm2', type: 'member' }],
+    body: { mimeType: 'text/html', content: '안건' },
+  });
+
+  assert.deepEqual(requests.map(r => `${r.method} ${r.url}`), ['POST /calendar/v1/calendars/c1/events']);
+  assert.deepEqual(requests[0].data, {
+    users: { to: [{ type: 'member', member: { organizationMemberId: 'm2' } }] },
+    subject: '회의',
+    body: { mimeType: 'text/html', content: '안건' },
+    startedAt: '2026-10-22T10:00:00+09:00',
+    endedAt: '2026-10-22T11:00:00+09:00',
+  });
 });
 
 test('update-calendar-event sends only provided fields', async () => {
