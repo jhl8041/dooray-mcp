@@ -24,7 +24,7 @@ export async function renameDriveFileHandler(args: RenameDriveFileInput) {
         text: JSON.stringify({
           success: true,
           message: `File/folder renamed to "${args.name}" successfully.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

@@ -83,7 +83,7 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
               contentLength: result.contentLength,
               savedTo: targetPath,
               message: `File saved to "${targetPath}" (${result.contentLength} bytes)`,
-            }, null, 2),
+            }),
           },
         ],
       };
@@ -103,7 +103,7 @@ export async function downloadAttachmentHandler(args: DownloadAttachmentInput) {
             contentType: result.contentType,
             contentLength: result.contentLength,
             base64Data: base64Data,
-          }, null, 2),
+          }),
         },
       ],
     };

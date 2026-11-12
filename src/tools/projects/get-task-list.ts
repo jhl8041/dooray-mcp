@@ -22,7 +22,7 @@ export const getTaskListSchema = z.object({
   postWorkflowClasses: z.array(z.string()).optional().describe('Filter by workflow classes: backlog, registered, working, closed'),
   postWorkflowIds: z.array(z.string()).optional().describe('Filter by workflow IDs defined in the project'),
   milestoneIds: z.array(z.string()).optional().describe('Filter by milestone IDs'),
-  subjects: z.string().optional().describe('Filter by task subject (title)'),
+  subjects: z.string().optional().describe('Partial match on the task title only'),
   // Date filters (supports: today, thisweek, prev-Nd, next-Nd, or ISO8601 range like "2021-01-01T00:00:00+09:00~2021-01-10T00:00:00+09:00")
   createdAt: z.string().optional().describe('Filter by creation date (today, thisweek, prev-7d, next-7d, or ISO8601 range)'),
   updatedAt: z.string().optional().describe('Filter by update date (today, thisweek, prev-7d, next-7d, or ISO8601 range)'),
@@ -66,7 +66,7 @@ export async function getTaskListHandler(args: GetTaskListInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(compactResult, null, 2),
+          text: JSON.stringify(compactResult),
         },
       ],
     };
@@ -134,7 +134,9 @@ When given a Dooray URL like "https://nhnent.dooray.com/task/PROJECT_ID" or "htt
 - Custom: Use order parameter with: postDueAt, postUpdatedAt, createdAt
 - Prefix with - for descending (e.g., "-createdAt")
 
-Returns paginated task list with id, number, subject, status, priority, dueDate, assignees, tags, and milestone.`,
+**Title search**: subjects matches part of the task title only. Body and comments are not searched, so 0 results does not mean no task mentions the keyword.
+
+Returns totalCount and tasks with id, number, subject, workflowClass, priority, milestone, tags (id only), createdAt, updatedAt. Assignees, CC and dueDate are not included: use get-task.`,
   inputSchema: {
     type: 'object',
     properties: {
@@ -191,7 +193,7 @@ Returns paginated task list with id, number, subject, status, priority, dueDate,
       },
       subjects: {
         type: 'string',
-        description: 'Filter by task subject',
+        description: 'Partial match on the task title only. Body and comments are not searched',
       },
       createdAt: {
         type: 'string',

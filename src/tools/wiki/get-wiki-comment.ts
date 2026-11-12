@@ -18,7 +18,7 @@ export type GetWikiPageCommentInput = z.infer<typeof getWikiPageCommentSchema>;
 export async function getWikiPageCommentHandler(args: GetWikiPageCommentInput) {
   try {
     const result = await wikiApi.getWikiPageComment(args.wikiId, args.pageId, args.commentId);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

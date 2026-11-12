@@ -34,7 +34,7 @@ export async function createTagHandler(args: CreateTagInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(result, null, 2),
+          text: JSON.stringify(result),
         },
       ],
     };

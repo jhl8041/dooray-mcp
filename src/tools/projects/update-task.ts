@@ -7,6 +7,7 @@ import { z } from 'zod';
 import * as projectsApi from '../../api/projects.js';
 import { formatError } from '../../utils/errors.js';
 import { transformMembers, toRequestMembers, mergeMembers } from '../../utils/member-transform.js';
+import { omitTaskBodyContent } from '../../utils/response-filters.js';
 
 const memberSchema = z.object({
   id: z.string(),
@@ -42,14 +43,16 @@ export const updateTaskSchema = z.object({
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
 /**
- * Resolve add/remove options against the current task
+ * Resolve options that need the current task: add/remove options, and assignees or cc passed alone
+ * The Dooray API replaces users as a whole, so the side that was not passed is sent with its current members
  * Replacement options (assignees, cc, tagIds) and add/remove options for the same field cannot be mixed
  */
-async function resolveIncrementalChanges(args: UpdateTaskInput) {
+async function resolveChangesAgainstCurrentTask(args: UpdateTaskInput) {
   const usersIncremental = [args.addAssignees, args.removeAssignees, args.addCc, args.removeCc]
     .some(list => list !== undefined);
+  const usersPartial = (args.assignees === undefined) !== (args.cc === undefined);
   const tagsIncremental = args.addTagIds !== undefined || args.removeTagIds !== undefined;
-  if (!usersIncremental && !tagsIncremental) return {};
+  if (!usersIncremental && !usersPartial && !tagsIncremental) return {};
 
   if (usersIncremental && (args.assignees !== undefined || args.cc !== undefined)) {
     throw new Error('Use either assignees/cc (replace) or addAssignees/removeAssignees/addCc/removeCc (add, remove), not both');
@@ -71,6 +74,11 @@ async function resolveIncrementalChanges(args: UpdateTaskInput) {
       ),
       cc: mergeMembers(toRequestMembers(task.users?.cc), transformMembers(args.addCc), transformMembers(args.removeCc)),
     };
+  } else if (usersPartial) {
+    changes.users = {
+      to: args.assignees !== undefined ? transformMembers(args.assignees) ?? [] : toRequestMembers(task.users?.to),
+      cc: args.cc !== undefined ? transformMembers(args.cc) ?? [] : toRequestMembers(task.users?.cc),
+    };
   }
 
   if (tagsIncremental) {
@@ -84,7 +92,7 @@ async function resolveIncrementalChanges(args: UpdateTaskInput) {
 
 export async function updateTaskHandler(args: UpdateTaskInput) {
   try {
-    const incremental = await resolveIncrementalChanges(args);
+    const incremental = await resolveChangesAgainstCurrentTask(args);
 
     // 1. 기본 필드 업데이트 파라미터 구성
     const updateParams: Record<string, unknown> = {};
@@ -104,7 +112,7 @@ export async function updateTaskHandler(args: UpdateTaskInput) {
       };
     }
 
-    // 추가, 제거 옵션으로 계산한 담당자, 참조자, 태그
+    // 현재 task 기준으로 계산한 담당자, 참조자, 태그 (추가, 제거 옵션이나 한쪽만 넘긴 교체)
     if (incremental.users) updateParams.users = incremental.users;
     if (incremental.tagIds) updateParams.tagIds = incremental.tagIds;
 
@@ -124,7 +132,7 @@ export async function updateTaskHandler(args: UpdateTaskInput) {
       await projectsApi.setParentPost(args.projectId, args.taskId, args.parentPostId);
     }
 
-    // 5. 최종 task 상태 반환 (기본 업데이트 없이 workflow나 상위 업무만 변경한 경우)
+    // 5. 최종 task 상태 반환 (수정 API 는 result 가 null 이라 다시 조회한다). 본문은 길이만 남긴다
     if (!result) {
       result = await projectsApi.getTaskDetails(args.taskId, args.projectId);
     }
@@ -133,7 +141,7 @@ export async function updateTaskHandler(args: UpdateTaskInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(result, null, 2),
+          text: JSON.stringify(omitTaskBodyContent(result)),
         },
       ],
     };
@@ -154,35 +162,15 @@ export const updateTaskTool = {
   name: 'update-task',
   description: `Update an existing task in a Dooray project.
 
-**RECOMMENDED WORKFLOW** (guide for AI assistants):
+Only provide the fields you want to change. Fields you leave out keep their current values, so get-task is not needed first.
 
-1. **Fetch Current Task**: Call get-task to retrieve current values before updating
-   - Preserves existing data when only updating specific fields
-   - Shows current assignees, tags, milestone, workflow status
-   - Use returned data to know what values to preserve
-
-2. **Determine Changes**: Identify what needs updating
-   - If changing assignees/cc: Get options from get-my-member-info, get-project-member-list, get-project-member-group-list
-   - Member types: {"id": "...", "type": "member|group|email"}
-   - "member": organizationMemberId, "group": group id, "email": email address
-
-3. **Handle Tags**: Call get-tag-list if updating tags
-   - **CRITICAL**: Check tagGroup.mandatory=true - MUST include tags from all mandatory groups or update fails (500 error)
-   - tagGroup.selectOne=true: Select exactly ONE tag from group
-   - tagGroup.selectOne=false: Select one or MORE tags from group
-   - **IMPORTANT**: tagIds is a COMPLETE replacement, not additive
-
-4. **Handle Workflow**: Use get-project-workflow-list to see available statuses
-   - Provide workflowId to change task status
-   - Workflow classes: backlog (대기), registered (등록/할 일), working (진행 중), closed (완료)
-
-5. **Handle Parent Post (상위 업무)**: Provide parentPostId to set a parent task
-   - Nested hierarchy is NOT allowed: a task that already has sub-tasks cannot be set as a parent
-
-**IMPORTANT NOTES**:
-- **Complete Replacement**: assignees, cc, and tagIds completely REPLACE existing values (not merged)
-- **Add / Remove**: addAssignees, removeAssignees, addCc, removeCc, addTagIds, removeTagIds change only what you list and keep the rest. The tool reads the current task itself, so get-task is not needed first. Do not combine them with the replacement option of the same field
-- **Preserve Data**: Only provide fields you want to change; unprovided fields remain unchanged
+**Fields**:
+- **Assignees, CC**: assignees and cc each REPLACE that list. Passing only one of them keeps the other list. addAssignees, removeAssignees, addCc, removeCc change only the members you list. Do not combine add/remove options with assignees or cc
+  - Member options: get-my-member-info, get-project-member-list, get-project-member-group-list. Format {"id": "...", "type": "member|group|email"} ("member": organizationMemberId, "group": group id, "email": email address)
+- **Tags**: tagIds REPLACES all tags. addTagIds, removeTagIds change only the tags you list. Do not combine them with tagIds
+  - Check get-tag-list first: tags from every mandatory tag group (tagGroup.mandatory=true) must remain or the update fails with 500. tagGroup.selectOne=true allows exactly one tag from that group
+- **Workflow**: workflowId from get-project-workflow-list. Classes: backlog (대기), registered (등록/할 일), working (진행 중), closed (완료)
+- **Parent (상위 업무)**: parentPostId. A task that already has sub-tasks cannot be set as a parent
 - **Korean Terms**: "to" = 담당자 (assignee), "cc" = 참조 (reference)
 - **Priority**: Use "none" to remove priority
 
@@ -193,15 +181,15 @@ When given a Dooray task URL like "https://nhnent.dooray.com/task/PROJECT_ID/TAS
 
 **Examples**:
 - Change priority: {"projectId": "123", "taskId": "42", "priority": "high"}
-- Update assignees: {"projectId": "123", "taskId": "42", "assignees": [{"id": "user123", "type": "member"}]}
-- Change status: {"projectId": "123", "taskId": "42", "workflowId": "working"}
+- Replace assignees, keep CC: {"projectId": "123", "taskId": "42", "assignees": [{"id": "user123", "type": "member"}]}
+- Change status: {"projectId": "123", "taskId": "42", "workflowId": "ID from get-project-workflow-list"}
 - Update tags: {"projectId": "123", "taskId": "42", "tagIds": ["tag1", "tag2"]}
 - Clear milestone: {"projectId": "123", "taskId": "42", "milestoneId": null}
 - Set parent task: {"projectId": "123", "taskId": "42", "parentPostId": "99"}
 - Add a CC, keep others: {"projectId": "123", "taskId": "42", "addCc": [{"id": "user456", "type": "member"}]}
 - Add and remove tags: {"projectId": "123", "taskId": "42", "addTagIds": ["tag3"], "removeTagIds": ["tag1"]}
 
-Returns: Updated task with all current details.`,
+Returns: Updated task. The body is returned as mimeType and contentLength. Use get-task to read the body.`,
   inputSchema: {
     type: 'object',
     properties: {
@@ -241,7 +229,7 @@ Returns: Updated task with all current details.`,
           },
           required: ['id', 'type'],
         },
-        description: 'New complete list of assignees (담당자). REPLACES all existing assignees. To get options: (1) use get-my-member-info for current user, (2) use get-project-member-list for project members, (3) use get-project-member-group-list for member groups. Each assignee object has {id: string, type: "member"|"group"|"email"}.',
+        description: 'New complete list of assignees (담당자). REPLACES all existing assignees. CC is kept when cc is not passed. To get options: (1) use get-my-member-info for current user, (2) use get-project-member-list for project members, (3) use get-project-member-group-list for member groups. Each assignee object has {id: string, type: "member"|"group"|"email"}.',
       },
       cc: {
         type: 'array',
@@ -253,7 +241,7 @@ Returns: Updated task with all current details.`,
           },
           required: ['id', 'type'],
         },
-        description: 'New complete list of CC recipients (참조). REPLACES all existing CC recipients. To get options: (1) use get-my-member-info for current user, (2) use get-project-member-list for project members, (3) use get-project-member-group-list for member groups. Each CC object has {id: string, type: "member"|"group"|"email"}.',
+        description: 'New complete list of CC recipients (참조). REPLACES all existing CC recipients. Assignees are kept when assignees is not passed. To get options: (1) use get-my-member-info for current user, (2) use get-project-member-list for project members, (3) use get-project-member-group-list for member groups. Each CC object has {id: string, type: "member"|"group"|"email"}.',
       },
       dueDate: {
         type: 'string',

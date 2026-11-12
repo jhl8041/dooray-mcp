@@ -21,7 +21,7 @@ export type GetDriveFileListInput = z.infer<typeof getDriveFileListSchema>;
 export async function getDriveFileListHandler(args: GetDriveFileListInput) {
   try {
     const result = await driveApi.getDriveFiles(args);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

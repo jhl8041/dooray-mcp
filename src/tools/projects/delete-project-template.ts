@@ -25,7 +25,7 @@ export async function deleteProjectTemplateHandler(args: DeleteProjectTemplateIn
           text: JSON.stringify({
             success: true,
             message: 'Template deleted successfully',
-          }, null, 2),
+          }),
         },
       ],
     };

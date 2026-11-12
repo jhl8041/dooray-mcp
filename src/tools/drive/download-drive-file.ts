@@ -74,7 +74,7 @@ export async function downloadDriveFileHandler(args: DownloadDriveFileInput) {
             contentLength: result.contentLength,
             savedTo: targetPath,
             message: `File saved to "${targetPath}" (${result.contentLength} bytes)`,
-          }, null, 2),
+          }),
         }],
       };
     }
@@ -92,7 +92,7 @@ export async function downloadDriveFileHandler(args: DownloadDriveFileInput) {
           contentType: result.contentType,
           contentLength: result.contentLength,
           base64Data: base64Data,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

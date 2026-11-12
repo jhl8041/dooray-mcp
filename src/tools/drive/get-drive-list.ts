@@ -19,7 +19,7 @@ export type GetDriveListInput = z.infer<typeof getDriveListSchema>;
 export async function getDriveListHandler(args: GetDriveListInput) {
   try {
     const result = await driveApi.getDrives(args);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

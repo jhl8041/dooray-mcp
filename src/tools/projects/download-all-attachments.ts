@@ -54,7 +54,7 @@ export async function downloadAllAttachmentsHandler(args: DownloadAllAttachments
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ count: attachments.data.length, succeeded, failed }, null, 2),
+          text: JSON.stringify({ count: attachments.data.length, succeeded, failed }),
         },
       ],
       // Partial failure is still an error so the caller checks the failed list

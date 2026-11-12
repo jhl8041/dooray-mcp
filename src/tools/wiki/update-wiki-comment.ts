@@ -19,7 +19,7 @@ export type UpdateWikiPageCommentInput = z.infer<typeof updateWikiPageCommentSch
 export async function updateWikiPageCommentHandler(args: UpdateWikiPageCommentInput) {
   try {
     await wikiApi.updateWikiPageComment(args);
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Comment updated successfully' }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Comment updated successfully' }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

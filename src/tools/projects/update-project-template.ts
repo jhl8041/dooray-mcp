@@ -87,7 +87,7 @@ export async function updateProjectTemplateHandler(args: UpdateProjectTemplateIn
           text: JSON.stringify({
             success: true,
             message: 'Template updated successfully',
-          }, null, 2),
+          }),
         },
       ],
     };

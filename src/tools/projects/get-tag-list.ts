@@ -31,7 +31,7 @@ export async function getTagListHandler(args: GetTagListInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(groupedResult, null, 2),
+          text: JSON.stringify(groupedResult),
         },
       ],
     };

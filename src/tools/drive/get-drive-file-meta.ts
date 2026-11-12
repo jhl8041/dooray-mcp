@@ -16,7 +16,7 @@ export type GetDriveFileMetaInput = z.infer<typeof getDriveFileMetaSchema>;
 export async function getDriveFileMetaHandler(args: GetDriveFileMetaInput) {
   try {
     const result = await driveApi.getDriveFileMeta(args.fileId);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

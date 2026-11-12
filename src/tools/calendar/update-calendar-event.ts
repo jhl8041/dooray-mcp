@@ -33,7 +33,7 @@ export async function updateCalendarEventHandler(args: UpdateCalendarEventInput)
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ success: true, message: 'Event updated successfully' }, null, 2),
+          text: JSON.stringify({ success: true, message: 'Event updated successfully' }),
         },
       ],
     };

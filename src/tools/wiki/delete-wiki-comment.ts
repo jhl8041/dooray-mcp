@@ -18,7 +18,7 @@ export type DeleteWikiPageCommentInput = z.infer<typeof deleteWikiPageCommentSch
 export async function deleteWikiPageCommentHandler(args: DeleteWikiPageCommentInput) {
   try {
     await wikiApi.deleteWikiPageComment(args.wikiId, args.pageId, args.commentId);
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Comment deleted successfully' }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Comment deleted successfully' }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

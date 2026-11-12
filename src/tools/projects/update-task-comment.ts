@@ -41,7 +41,10 @@ export async function updateTaskCommentHandler(args: UpdateTaskCommentInput) {
       ],
     };
   } catch (error) {
-    return formatError(error);
+    return {
+      content: [{ type: 'text', text: `Error: ${formatError(error)}` }],
+      isError: true,
+    };
   }
 }
 

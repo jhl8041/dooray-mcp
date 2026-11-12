@@ -17,7 +17,7 @@ export type GetWikiListInput = z.infer<typeof getWikiListSchema>;
 export async function getWikiListHandler(args: GetWikiListInput) {
   try {
     const result = await wikiApi.getWikis(args);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

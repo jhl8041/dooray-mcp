@@ -19,7 +19,7 @@ export async function getWikiPageHandler(args: GetWikiPageInput) {
     const result = args.wikiId
       ? await wikiApi.getWikiPageByWikiId(args.wikiId, args.pageId)
       : await wikiApi.getWikiPage(args.pageId);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

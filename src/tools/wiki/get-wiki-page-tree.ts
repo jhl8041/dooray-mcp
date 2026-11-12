@@ -54,7 +54,7 @@ export async function getWikiPageTreeHandler(args: GetWikiPageTreeInput) {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify({ pageCount, truncated, depth: maxDepth, tree }, null, 2),
+        text: JSON.stringify({ pageCount, truncated, depth: maxDepth, tree }),
       }],
     };
   } catch (error) {

@@ -85,7 +85,7 @@ export async function createProjectTemplateHandler(args: CreateProjectTemplateIn
           text: JSON.stringify({
             id: result.id,
             message: 'Template created successfully',
-          }, null, 2),
+          }),
         },
       ],
     };

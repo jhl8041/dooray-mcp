@@ -32,10 +32,13 @@ export async function getTaskCommentListHandler(args: GetTaskCommentListInput) {
     const filtered = filterPaginatedResponse(result, filterTaskCommentForList);
 
     return {
-      content: [{ type: 'text', text: JSON.stringify(filtered, null, 2) }],
+      content: [{ type: 'text', text: JSON.stringify(filtered) }],
     };
   } catch (error) {
-    return formatError(error);
+    return {
+      content: [{ type: 'text', text: `Error: ${formatError(error)}` }],
+      isError: true,
+    };
   }
 }
 

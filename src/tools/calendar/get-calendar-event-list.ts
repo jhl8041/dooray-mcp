@@ -38,7 +38,7 @@ export async function getCalendarEventListHandler(args: GetCalendarEventListInpu
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ totalCount: compactResult.length, data: compactResult }, null, 2),
+          text: JSON.stringify({ totalCount: compactResult.length, data: compactResult }),
         },
       ],
     };

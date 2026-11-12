@@ -36,7 +36,7 @@ export async function updateTaskBodyHandler(args: UpdateTaskBodyInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ success: true, replacedCount: replaced.count, mimeType: task.body.mimeType }, null, 2),
+          text: JSON.stringify({ success: true, replacedCount: replaced.count, mimeType: task.body.mimeType }),
         },
       ],
     };

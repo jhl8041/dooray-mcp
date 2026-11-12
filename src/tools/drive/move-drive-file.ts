@@ -25,7 +25,7 @@ export async function moveDriveFileHandler(args: MoveDriveFileInput) {
         text: JSON.stringify({
           success: true,
           message: `File/folder moved to ${dest} successfully.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

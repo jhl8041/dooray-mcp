@@ -5,6 +5,11 @@ import { replaceText } from '../src/utils/text-replace.js';
 import { mergeMembers, toRequestMembers } from '../src/utils/member-transform.js';
 import { updateTaskHandler } from '../src/tools/projects/update-task.js';
 import { updateTaskBodyHandler } from '../src/tools/projects/update-task-body.js';
+import { getTaskHandler } from '../src/tools/projects/get-task.js';
+import { getTaskListHandler } from '../src/tools/projects/get-task-list.js';
+import { getTaskCommentListHandler } from '../src/tools/projects/get-task-comment-list.js';
+import { updateTaskCommentHandler } from '../src/tools/projects/update-task-comment.js';
+import { getClient } from '../src/api/client.js';
 import { getWikiPageTreeHandler } from '../src/tools/wiki/get-wiki-page-tree.js';
 import * as wikiApi from '../src/api/wiki.js';
 
@@ -20,6 +25,18 @@ const currentTask = {
   },
   tags: [{ id: 't1' }, { id: 't2' }],
 };
+
+// Dooray answers an unknown task with isSuccessful false
+function createFailingClient() {
+  createCaptureClient();
+  getClient().getRawClient().defaults.adapter = async config => ({
+    data: { header: { isSuccessful: false, resultCode: -100404, resultMessage: 'SERVICE_RESOURCE_POST_NOT_FOUND' }, result: null },
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config,
+  });
+}
 
 test('replaceText replaces a unique match and rejects missing or ambiguous ones', () => {
   assert.deepEqual(replaceText('a b c', 'b', 'B'), { content: 'a B c', count: 1 });
@@ -68,6 +85,93 @@ test('update-task addCc keeps current assignees and CC', async () => {
     },
     tagIds: ['t2', 't3'],
   });
+});
+
+test('update-task with assignees only keeps current CC and returns the body as its length', async () => {
+  const requests = createCaptureClient(request => (request.method === 'GET' ? currentTask : null));
+  const result = await updateTaskHandler({ projectId: 'p1', taskId: '42', assignees: [{ id: 'm3', type: 'member' }] });
+
+  assert.equal(result.isError, undefined);
+  const put = requests.find(request => request.method === 'PUT');
+  assert.deepEqual(put?.data, {
+    users: {
+      to: [{ type: 'member', member: { organizationMemberId: 'm3' } }],
+      cc: [
+        { type: 'member', member: { organizationMemberId: 'm2' } },
+        { type: 'emailUser', emailUser: { emailAddress: 'x@example.com', name: 'X' } },
+      ],
+    },
+  });
+  const text = (result.content[0] as { text: string }).text;
+  assert.deepEqual(JSON.parse(text).body, { mimeType: 'text/x-markdown', contentLength: currentTask.body.content.length });
+  assert.equal(text.includes('\n'), false);
+});
+
+test('update-task with cc only keeps current assignees, an empty list clears cc', async () => {
+  const requests = createCaptureClient(request => (request.method === 'GET' ? currentTask : null));
+  await updateTaskHandler({ projectId: 'p1', taskId: '42', cc: [] });
+
+  const put = requests.find(request => request.method === 'PUT');
+  assert.deepEqual(put?.data, {
+    users: { to: [{ type: 'member', member: { organizationMemberId: 'm1' } }], cc: [] },
+  });
+});
+
+test('update-task with assignees and cc replaces both without reading the task first', async () => {
+  const requests = createCaptureClient(request => (request.method === 'GET' ? currentTask : null));
+  await updateTaskHandler({
+    projectId: 'p1',
+    taskId: '42',
+    assignees: [{ id: 'm3', type: 'member' }],
+    cc: [{ id: 'm4', type: 'member' }],
+  });
+
+  assert.deepEqual(requests.map(request => request.method), ['PUT', 'GET']);
+  assert.deepEqual(requests[0].data, {
+    users: {
+      to: [{ type: 'member', member: { organizationMemberId: 'm3' } }],
+      cc: [{ type: 'member', member: { organizationMemberId: 'm4' } }],
+    },
+  });
+});
+
+test('get-task returns the body length instead of the content when includeBody is false', async () => {
+  createCaptureClient(currentTask);
+  const full = await getTaskHandler({ taskId: '42' });
+  const short = await getTaskHandler({ taskId: '42', includeBody: false });
+
+  assert.equal(JSON.parse((full.content[0] as { text: string }).text).body.content, currentTask.body.content);
+  assert.deepEqual(JSON.parse((short.content[0] as { text: string }).text).body, {
+    mimeType: 'text/x-markdown',
+    contentLength: currentTask.body.content.length,
+  });
+});
+
+test('get-task-list returns compact JSON without indentation', async () => {
+  const requests = createCaptureClient([{ id: '42', number: 7, subject: '배포', tags: [{ id: 't1' }], users: currentTask.users }]);
+  const result = await getTaskListHandler({ projectId: 'p1', subjects: '배포' });
+
+  const text = (result.content[0] as { text: string }).text;
+  assert.equal(text.includes('\n'), false);
+  assert.deepEqual(JSON.parse(text).data[0], { id: '42', number: 7, subject: '배포', tags: [{ id: 't1' }] });
+  assert.equal(requests[0].params?.subjects, '배포');
+});
+
+test('comment tools return an error result instead of a bare string when the API fails', async () => {
+  createFailingClient();
+  const list = await getTaskCommentListHandler({ projectId: 'p1', taskId: '42' });
+  const update = await updateTaskCommentHandler({
+    projectId: 'p1',
+    taskId: '42',
+    commentId: 'c1',
+    body: { mimeType: 'text/x-markdown', content: '수정' },
+  });
+
+  for (const result of [list, update]) {
+    assert.equal(typeof result, 'object');
+    assert.equal(result.isError, true);
+    assert.match((result.content[0] as { text: string }).text, /^Error: Dooray API Error: SERVICE_RESOURCE_POST_NOT_FOUND/);
+  }
 });
 
 test('update-task rejects mixing replace and add options for the same field', async () => {

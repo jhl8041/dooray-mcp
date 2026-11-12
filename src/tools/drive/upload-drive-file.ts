@@ -95,7 +95,7 @@ export async function uploadDriveFileHandler(args: UploadDriveFileInput) {
           fileId: result.id,
           fileName: fileName,
           message: `File "${fileName}" uploaded successfully to drive.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

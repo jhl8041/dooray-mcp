@@ -31,7 +31,7 @@ export async function updateWikiPageHandler(args: UpdateWikiPageInput) {
       body: args.content ? { mimeType: 'text/x-markdown', content: args.content } : undefined,
       referrers: args.referrers,
     });
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page updated successfully' }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page updated successfully' }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }
