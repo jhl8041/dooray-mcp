@@ -102,7 +102,7 @@ export async function uploadWikiFileHandler(args: UploadWikiFileInput) {
             mimeType: result.mimeType,
             size: result.size,
             message: `File "${result.name || fileName}" successfully uploaded to wiki. Use attachFileId when creating a wiki page with attachments.`,
-          }, null, 2),
+          }),
         },
       ],
     };

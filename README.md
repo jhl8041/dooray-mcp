@@ -73,9 +73,9 @@ claude mcp add -s user dooray-mcp -e DOORAY_API_TOKEN=<발급받은 토큰> -- n
 - `get-project` - 프로젝트 상세정보
 - `get-project-workflow-list` - 업무 상태 목록
 - `get-task-list` - 업무 검색/필터링
-- `get-task` - 업무 상세정보
+- `get-task` - 업무 상세정보 (본문 제외 옵션 `includeBody`)
 - `create-task` - 업무 생성
-- `update-task` - 업무 수정 (담당자, 참조자, 태그 추가, 제거 옵션 포함)
+- `update-task` - 업무 수정 (담당자, 참조자, 태그 추가, 제거 옵션 포함. 담당자나 참조 한쪽만 넘기면 다른 쪽은 유지)
 - `update-task-body` - 업무 본문 일부 치환
 - `create-task-comment` - 댓글 작성
 - `get-task-comment-list` - 댓글 목록

@@ -34,7 +34,7 @@ export async function getCalendarListHandler(args: GetCalendarListInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(compactResult, null, 2),
+          text: JSON.stringify(compactResult),
         },
       ],
     };

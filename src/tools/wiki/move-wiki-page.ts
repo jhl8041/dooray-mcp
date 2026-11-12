@@ -21,7 +21,7 @@ export type MoveWikiPageInput = z.infer<typeof moveWikiPageSchema>;
 export async function moveWikiPageHandler(args: MoveWikiPageInput) {
   try {
     await wikiApi.moveWikiPage(args);
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page moved successfully' }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page moved successfully' }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

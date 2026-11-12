@@ -18,7 +18,7 @@ export type CreateWikiPageCommentInput = z.infer<typeof createWikiPageCommentSch
 export async function createWikiPageCommentHandler(args: CreateWikiPageCommentInput) {
   try {
     const result = await wikiApi.createWikiPageComment(args);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

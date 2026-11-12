@@ -65,7 +65,7 @@ export async function createTaskHandler(args: CreateTaskInput) {
               id: result.id,
               url: result.url,
               message: 'Draft task created successfully. Open the URL in your browser to continue editing.',
-            }, null, 2),
+            }),
           },
         ],
       };
@@ -77,7 +77,7 @@ export async function createTaskHandler(args: CreateTaskInput) {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(result, null, 2),
+            text: JSON.stringify(result),
           },
         ],
       };
@@ -118,7 +118,7 @@ export const createTaskTool = {
 - Draft: {"projectId": "123", "subject": "Bug fix", "isDraft": true}
 - Regular: {"projectId": "123", "subject": "Deploy", "assignees": [{"id": "user1", "type": "member"}], "tagIds": ["tag1"], "priority": "high"}
 
-Returns: Task object (regular) or {id, url, message} (draft).`,
+Returns: {id} (regular) or {id, url, message} (draft). For taskNumber, call get-task with includeBody false.`,
   inputSchema: {
     type: 'object',
     properties: {

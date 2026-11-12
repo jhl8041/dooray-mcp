@@ -30,7 +30,7 @@ export async function deleteAttachmentHandler(args: DeleteAttachmentInput) {
           text: JSON.stringify({
             success: true,
             message: `File ${args.fileId} successfully deleted from task.`,
-          }, null, 2),
+          }),
         },
       ],
     };

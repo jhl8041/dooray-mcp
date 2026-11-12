@@ -27,7 +27,7 @@ export async function getProjectWorkflowListHandler(args: GetProjectWorkflowList
       content: [
         {
           type: 'text',
-          text: JSON.stringify(compactResult, null, 2),
+          text: JSON.stringify(compactResult),
         },
       ],
     };

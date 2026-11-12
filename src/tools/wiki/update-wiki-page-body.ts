@@ -28,7 +28,7 @@ export async function updateWikiPageBodyHandler(args: UpdateWikiPageBodyInput) {
     const replaced = replaceText(page.body.content, args.oldText, args.newText, args.replaceAll);
     await wikiApi.updateWikiPageContent(args.wikiId, args.pageId, replaced.content);
 
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, replacedCount: replaced.count }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, replacedCount: replaced.count }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

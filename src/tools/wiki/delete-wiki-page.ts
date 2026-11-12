@@ -17,7 +17,7 @@ export type DeleteWikiPageInput = z.infer<typeof deleteWikiPageSchema>;
 export async function deleteWikiPageHandler(args: DeleteWikiPageInput) {
   try {
     await wikiApi.deleteWikiPage(args.wikiId, args.pageId);
-    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page deleted successfully' }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ success: true, message: 'Wiki page deleted successfully' }) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

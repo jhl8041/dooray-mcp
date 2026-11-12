@@ -23,7 +23,7 @@ export async function deleteDriveFileHandler(args: DeleteDriveFileInput) {
         text: JSON.stringify({
           success: true,
           message: `File permanently deleted.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

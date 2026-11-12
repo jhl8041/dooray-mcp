@@ -23,7 +23,7 @@ export async function deleteTaskCommentHandler(args: DeleteTaskCommentInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ success: true, message: 'Comment deleted successfully' }, null, 2),
+          text: JSON.stringify({ success: true, message: 'Comment deleted successfully' }),
         },
       ],
     };

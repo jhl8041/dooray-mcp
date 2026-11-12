@@ -27,7 +27,7 @@ export async function getAttachmentMetadataHandler(args: GetAttachmentMetadataIn
       content: [
         {
           type: 'text',
-          text: JSON.stringify(result, null, 2),
+          text: JSON.stringify(result),
         },
       ],
     };

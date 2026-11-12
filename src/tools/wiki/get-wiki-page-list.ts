@@ -17,7 +17,7 @@ export type GetWikiPageListInput = z.infer<typeof getWikiPageListSchema>;
 export async function getWikiPageListHandler(args: GetWikiPageListInput) {
   try {
     const result = await wikiApi.getWikiPages(args);
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
   } catch (error) {
     return { content: [{ type: 'text', text: `Error: ${formatError(error)}` }], isError: true };
   }

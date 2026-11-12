@@ -24,6 +24,15 @@ export function filterTaskForList(task: Task) {
 }
 
 /**
+ * Replace the task body content with its length
+ * Task bodies can exceed 50,000 characters, which is more than an MCP client shows in one result
+ */
+export function omitTaskBodyContent(task: Task) {
+  if (!task.body) return task;
+  return { ...task, body: { mimeType: task.body.mimeType, contentLength: task.body.content.length } };
+}
+
+/**
  * Filter Project object to return only essential fields for list display
  */
 export function filterProjectForList(project: Project) {

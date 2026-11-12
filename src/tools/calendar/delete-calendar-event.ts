@@ -24,7 +24,7 @@ export async function deleteCalendarEventHandler(args: DeleteCalendarEventInput)
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ success: true, message: 'Event deleted successfully' }, null, 2),
+          text: JSON.stringify({ success: true, message: 'Event deleted successfully' }),
         },
       ],
     };

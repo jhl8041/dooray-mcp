@@ -29,7 +29,7 @@ export async function getMilestoneListHandler(args: GetMilestoneListInput) {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(compactResult, null, 2),
+          text: JSON.stringify(compactResult),
         },
       ],
     };
@@ -62,7 +62,7 @@ Examples:
 - Get only open milestones: {"projectId": "123456", "status": "open"}
 - Get only closed milestones: {"projectId": "123456", "status": "closed"}
 
-Returns an array of milestones with id, name, description, dates, and status. Use milestone IDs when creating or updating tasks.`,
+Returns an array of milestones with id, name, and status. Use milestone IDs when creating or updating tasks.`,
   inputSchema: {
     type: 'object',
     properties: {

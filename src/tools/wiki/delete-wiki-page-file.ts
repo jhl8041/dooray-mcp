@@ -30,7 +30,7 @@ export async function deleteWikiPageFileHandler(args: DeleteWikiPageFileInput) {
           text: JSON.stringify({
             success: true,
             message: `File ${args.fileId} successfully deleted from wiki page.`,
-          }, null, 2),
+          }),
         },
       ],
     };

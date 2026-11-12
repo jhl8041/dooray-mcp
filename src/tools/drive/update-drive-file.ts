@@ -96,7 +96,7 @@ export async function updateDriveFileHandler(args: UpdateDriveFileInput) {
           version: result.version,
           fileName: fileName,
           message: `File "${fileName}" updated successfully (new version uploaded).`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

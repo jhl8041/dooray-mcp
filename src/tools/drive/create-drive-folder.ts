@@ -25,7 +25,7 @@ export async function createDriveFolderHandler(args: CreateDriveFolderInput) {
           success: true,
           folderId: result.id,
           message: `Folder "${args.name}" created successfully.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

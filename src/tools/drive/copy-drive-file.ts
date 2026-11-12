@@ -25,7 +25,7 @@ export async function copyDriveFileHandler(args: CopyDriveFileInput) {
         text: JSON.stringify({
           success: true,
           message: `File copied successfully.`,
-        }, null, 2),
+        }),
       }],
     };
   } catch (error) {

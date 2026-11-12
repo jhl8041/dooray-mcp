@@ -98,7 +98,7 @@ export async function uploadAttachmentHandler(args: UploadAttachmentInput) {
             fileId: result.id,
             fileName: fileName,
             message: `File "${fileName}" successfully uploaded to task.`,
-          }, null, 2),
+          }),
         },
       ],
     };
