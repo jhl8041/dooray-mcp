@@ -45,9 +45,12 @@ async function main() {
   try {
     initializeClient({
       apiToken,
+      writeApiToken: process.env.DOORAY_WRITE_API_TOKEN,
       baseUrl: process.env.DOORAY_API_BASE_URL,
     });
-    logger.info('Dooray API client initialized');
+    logger.info(process.env.DOORAY_WRITE_API_TOKEN
+      ? 'Dooray API client initialized (write requests use DOORAY_WRITE_API_TOKEN)'
+      : 'Dooray API client initialized');
   } catch (error) {
     logger.error('Failed to initialize Dooray API client:', error);
     process.exit(1);

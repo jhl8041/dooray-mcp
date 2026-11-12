@@ -23,6 +23,7 @@ npm install -g @jhl8041/dooray-mcp
 | 변수 | 필수 | 설명 |
 |------|------|------|
 | `DOORAY_API_TOKEN` | O | 발급받은 API 토큰 |
+| `DOORAY_WRITE_API_TOKEN` | | 쓰기 요청(POST, PUT, PATCH, DELETE)에만 쓸 API 토큰. 업무, 댓글 등을 이 토큰의 계정으로 남기고, 조회는 `DOORAY_API_TOKEN` 으로 합니다. 쓰기가 실패해도 `DOORAY_API_TOKEN` 으로 다시 보내지 않습니다 |
 | `DOORAY_API_BASE_URL` | | API 주소 (기본값 `https://api.dooray.com`) |
 | `LOG_LEVEL` | | `ERROR`, `WARN`, `INFO`, `DEBUG` (기본값 `INFO`). 로그는 stderr 로 출력됩니다 |
 
