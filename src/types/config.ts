@@ -5,6 +5,8 @@
 export interface DoorayConfig {
   /** Dooray API authentication token */
   apiToken: string;
+  /** Token for write requests (POST, PUT, PATCH, DELETE). Writes are recorded under this token's account */
+  writeApiToken?: string;
   /** Base URL for Dooray API (default: https://api.dooray.com) */
   baseUrl?: string;
 }

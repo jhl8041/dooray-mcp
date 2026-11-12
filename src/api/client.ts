@@ -42,6 +42,19 @@ export function getRetryDelay(error: {
   return Math.min(BASE_RETRY_DELAY_MS * 2 ** retryCount, MAX_RETRY_DELAY_MS);
 }
 
+/**
+ * Pick the token for a request
+ * - Write requests (POST, PUT, PATCH, DELETE) use writeApiToken when it is set
+ * - Everything else uses apiToken
+ */
+export function selectToken(method: string | undefined, config: DoorayConfig): { token: string; name: string } {
+  const isWrite = (method || 'get').toLowerCase() !== 'get';
+  if (isWrite && config.writeApiToken) {
+    return { token: config.writeApiToken, name: 'DOORAY_WRITE_API_TOKEN' };
+  }
+  return { token: config.apiToken, name: 'DOORAY_API_TOKEN' };
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -86,7 +99,7 @@ export class DoorayClient {
     // Request interceptor - add authentication
     this.client.interceptors.request.use(
       (config) => {
-        config.headers.Authorization = `dooray-api ${this.config.apiToken}`;
+        config.headers.Authorization = `dooray-api ${selectToken(config.method, this.config).token}`;
         logger.debug(`Request: ${config.method?.toUpperCase()} ${config.url}`);
         return config;
       },
@@ -117,13 +130,18 @@ export class DoorayClient {
         if (error.response) {
           const { status, data, config } = error.response;
           logger.error(`API Error: ${status} ${config?.url}`, data);
+          const tokenName = selectToken(config?.method, this.config).name;
 
           if (status === 401) {
-            throw new AuthenticationError('Invalid or expired API token');
+            throw new AuthenticationError(`Invalid or expired ${tokenName}`);
           }
 
           const message = data?.header?.resultMessage || data?.message || 'API request failed';
-          throw new DoorayAPIError(message, status, data);
+          throw new DoorayAPIError(
+            tokenName === 'DOORAY_WRITE_API_TOKEN' ? `${message} (sent with ${tokenName})` : message,
+            status,
+            data
+          );
         }
 
         logger.error('Network error:', error.message);
@@ -192,7 +210,7 @@ export class DoorayClient {
   async uploadFile(url: string, formData: FormData, headers?: DoorayHeaders): Promise<any> {
     const baseUrl = this.config.baseUrl || DEFAULT_BASE_URL;
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    const authHeader = `dooray-api ${this.config.apiToken}`;
+    const authHeader = `dooray-api ${selectToken('post', this.config).token}`;
 
     // Step 1: Make initial request with redirect disabled to get 307
     const initialClient = axios.create({
